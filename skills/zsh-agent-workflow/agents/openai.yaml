@@ -1,0 +1,4 @@
+interface:
+  display_name: "ZSH Agent Workflow"
+  short_description: "Chinese workflow guardrails for AI coding agents"
+  default_prompt: "Use zsh-agent-workflow to structure this task with diagnosis, planning, verification, context control, and review."
