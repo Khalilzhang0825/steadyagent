@@ -1,8 +1,8 @@
-# zsh-agent-rules
+# 中文 AI Coding Agent 工作流总纲
 
-面向中文用户的 AI Coding Agent 协作规范与 workflow skill。
+让 Codex 和 Claude Code 少跑偏、少丢上下文、少过度设计，并且每次修改都有验证闭环。
 
-这个项目把 Codex、Claude Code、Claude Code 博客实践、Karpathy 编码防错规则、Mnilax 扩展规则和个人协作方法论分层整理成可复制、可安装、可迭代的工作流。
+这个仓库提供可直接复制的 `AGENTS.md`、`CLAUDE.md`，以及一个可安装的 `zsh-agent-workflow` skill。它把 Claude Code 博客实践、Karpathy 编码防错规则、Mnilax 扩展规则和个人协作方法论分层整理成可复用、可迭代的中文 AI coding agent 工作流。
 
 ## 适合谁
 
