@@ -1,85 +1,147 @@
-# 中文 AI Coding Agent 工作流总纲
+# SteadyAgent
 
-让 Codex 和 Claude Code 少跑偏、少丢上下文、少过度设计，并且每次修改都有验证闭环。
+**Ship with evidence, not vibes.**
 
-这个仓库提供可直接复制的 `AGENTS.md`、`CLAUDE.md`，以及一个可安装的 `zsh-agent-workflow` skill。它把 Claude Code 博客实践、Karpathy 编码防错规则、Mnilax 扩展规则和个人协作方法论分层整理成可复用、可迭代的中文 AI coding agent 工作流。
+SteadyAgent is a local-first harness for AI coding agents such as Codex and Claude Code. It turns ad-hoc agent chats into a repeatable engineering loop: scope the task, check the repo, make the smallest useful change, verify behavior, review the diff, and checkpoint the result.
 
-## 适合谁
+[中文说明](README.zh-CN.md)
 
-- 使用 Codex 的中文用户
-- 使用 Claude Code 的中文用户
-- 想减少模型跑偏、上下文混乱、过度设计和无验证修改的开发者
-- 想把个人 AI coding 方法论沉淀成总纲、skill 和 references 的团队
+> Status: v1 rebuild in progress. The current branch defines the product narrative, validation gates, and migration plan before publishing install scripts.
 
-## 快速开始
+## Why SteadyAgent
 
-### Codex
+AI coding agents are powerful, but they fail in predictable ways:
 
-复制 `AGENTS.md` 到你的 Codex 全局目录或项目根目录：
+- they drift from the requested scope
+- they edit before understanding the repo
+- they claim success without evidence
+- they lose context during long tasks
+- they run risky shell or Git operations too casually
+- they leave humans with no clear audit trail
 
-```powershell
-Copy-Item .\AGENTS.md "$env:USERPROFILE\.codex\AGENTS.md"
-```
+SteadyAgent wraps the agents you already use with practical workflow guardrails. It does not replace Codex or Claude Code. It makes them easier to trust on real development work.
 
-### Claude Code
+## Available Today
 
-复制 `CLAUDE.md` 到你的 Claude Code 全局目录或项目根目录：
+This rebuild is not packaged as an installer yet. The current branch gives you:
 
-```powershell
-Copy-Item .\CLAUDE.md "$env:USERPROFILE\.claude\CLAUDE.md"
-```
+- a SteadyAgent-first English README
+- a Chinese README with the same public positioning
+- a v1 migration plan in [docs/v1-migration-plan.md](docs/v1-migration-plan.md)
+- Phase 0 and Phase 1 validation scripts
+- a documented TDD and independent review gate for every phase
+- a local checkpoint trail that separates legacy preservation from v1 work
 
-### Skill
+## Planned For v1
 
-复制 skill 目录到 Codex skills 目录：
+The public v1 release is planned to include:
 
-```powershell
-Copy-Item .\skills\zsh-agent-workflow "$env:USERPROFILE\.codex\skills\zsh-agent-workflow" -Recurse
-```
+- short always-on instructions for Codex and Claude Code
+- progressive rules for workflow routing, verification, review, context recovery, and safety boundaries
+- Git preflight and checkpoint scripts so every task starts and ends with a known repo state
+- hook-based safety guards where the host supports deterministic hooks
+- project state recovery for long-running work and context compaction
+- TDD-style validation gates for docs, scripts, skills, and release readiness
+- a dry-run installer before any file is copied into a user's agent setup
 
-之后在复杂任务中让 Codex 使用 `zsh-agent-workflow`。
-
-## 文件结构
+## The Loop
 
 ```text
-zsh-agent-rules/
-├── AGENTS.md
-├── CLAUDE.md
-├── skills/
-│   └── zsh-agent-workflow/
-│       ├── SKILL.md
-│       ├── agents/openai.yaml
-│       └── references/
-└── docs/
+understand -> plan -> red check -> smallest change -> green check -> review -> checkpoint
 ```
 
-## 设计原则
+That loop is the core product. Every file in the repo exists to make one step more reliable.
 
-- 总纲短：`AGENTS.md` 和 `CLAUDE.md` 只放每次会话都值得加载的硬约束。
-- Skill 管流程：`zsh-agent-workflow` 负责复杂任务的阶段化执行。
-- References 管深度：博客、帖子、规则和提示词模板按需读取，不污染常驻上下文。
-- 验证优先：完成不等于成功，必须有测试、检查或最小验收步骤。
-- 冲突显性化：发现需求、测试或代码约定冲突时，不自行折中。
+## Quick Start
 
-## 方法论核心
+SteadyAgent is not packaged as an installer yet. If you are reading this from a checkout that contains the v1 rebuild files, the useful first step is to verify the repository narrative and quality gate:
 
-1. 先收敛，再展开。
-2. 明确时间尺度。
-3. 根据阶段选模式。
-4. 常驻上下文保持短。
-5. 复杂输出优先 HTML artifact。
-6. 子代理只用于隔离、并行和独立审查。
-7. 编码修改保持 surgical。
-8. 行为正确优先于测试通过。
-9. 失败、跳过和部分完成必须显性化。
-10. 规则必须对应真实失败模式。
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-phase1.ps1
+```
 
-## 来源与致谢
+The public v1 release will add fresh-clone instructions, a dry-run installer, and separate Codex / Claude Code setup commands.
 
-主要来源和设计说明见 `docs/sources.md` 与 `docs/design-notes.md`。
+## Safety Model
 
-## 版本计划
+SteadyAgent separates soft guidance from hard checks:
 
-- `v0.1.0`: 中文初版，总纲、skill、references 和 docs。
-- `v0.2.0`: 安装脚本和更多示例。
-- `v0.3.0`: 评估插件化或 marketplace 分发。
+| Layer | Purpose | Example |
+| --- | --- | --- |
+| Instructions | Set expectations for the agent | Keep changes scoped, verify behavior, report risks |
+| Rules | Load detailed workflow only when needed | Review gates, context recovery, safety boundaries |
+| Scripts | Make routine checks deterministic | Git preflight, checkpoint commits, validation gates |
+| Hooks | Block risky actions when supported | Dangerous shell commands, secret file edits |
+| Reviews | Catch gaps before checkpointing | Independent score, findings first |
+
+Codex and Claude Code do not expose the same enforcement surfaces, so SteadyAgent documents those differences instead of pretending one setup fits every host.
+
+## Compatibility
+
+SteadyAgent is designed around local developer machines first.
+
+| Host | v1 intent | Enforcement level |
+| --- | --- | --- |
+| Codex | Instructions, skills, validation scripts, Git checkpoint workflow | Strong guidance plus Git hooks where available |
+| Claude Code | Instructions, skills, validation scripts, lifecycle hooks, Git checkpoint workflow | Stronger deterministic enforcement through hooks |
+| Other coding agents | Reuse the public rules and scripts manually | Best-effort until host-specific adapters exist |
+
+The first public release is Windows-first because the original workflow was proven on Windows and PowerShell. Cross-platform support should be added through tested scripts, not undocumented assumptions.
+
+## What SteadyAgent Is Not
+
+SteadyAgent is not:
+
+- a new coding agent
+- a model router
+- a cloud orchestration platform
+- a replacement for human review
+- a security product that can guarantee secret detection
+- a promise that every host can enforce the same rules
+
+It is a practical harness for making local AI coding work more observable, safer, and easier to recover.
+
+## Current v1 Plan
+
+Completed locally:
+
+1. Phase 0: baseline, migration plan, validation gate, independent review score, and checkpoint commit.
+2. Phase 1: README-first public narrative, bilingual entrypoint, and public quality gate.
+
+Remaining v1 phases:
+
+1. Public templates and rules.
+2. Tools, hooks, and dry-run installer.
+3. Skill packaging and release readiness.
+
+See [docs/v1-migration-plan.md](docs/v1-migration-plan.md) for the full plan.
+
+## Who This Is For
+
+SteadyAgent is for developers who already use AI coding agents and want a more reliable local workflow before trusting them with larger tasks.
+
+It is especially useful if you care about:
+
+- repo hygiene
+- scoped changes
+- reproducible verification
+- safer Git operations
+- long-task continuity
+- reviewable evidence
+
+## Design Principles
+
+- Keep always-on context short.
+- Turn repeated workflow rules into scripts or hooks.
+- Verify behavior, not confidence.
+- Make incomplete work visible.
+- Prefer local-first control before cloud automation.
+- Treat every public release as an audited artifact.
+
+## Resume Case Study
+
+SteadyAgent is also a case study in harness engineering: designing the environment around coding agents so they can operate with clearer scope, safer tools, stronger verification, and better human oversight.
+
+## License
+
+License selection is part of the v1 release-readiness phase.

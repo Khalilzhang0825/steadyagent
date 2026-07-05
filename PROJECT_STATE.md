@@ -1,13 +1,13 @@
 # SteadyAgent v1 State
 - Goal: Rebuild the outdated zsh-agent-rules repo into SteadyAgent, a bilingual, usable-first agent harness for Codex and Claude Code.
 - Scope: Create public-ready docs, templates, rules, skills, scripts, install flow, validation gates, and resume-ready project evidence. Do not push or publish until the project owner confirms.
-- Current phase: Phase 0 - preserve the legacy baseline, define the v1 migration plan, and install a minimal validation gate.
+- Current phase: Phase 1 - README-first public narrative, bilingual entrypoint, and public quality gate.
 - Decisions: Use the SteadyAgent name; make the repo English-first with full Chinese parity; use TDD-style vertical slices; require independent review and scoring for every phase.
-- Validation: Phase 0 passes when `tools/validate-phase0.ps1` succeeds, Git status is understood, and the independent review reports no blocker.
+- Validation: Phase 1 passes when `tools/validate-phase1.ps1` succeeds, README links resolve, public/private boundary checks pass, and independent review reaches the acceptance floor.
 - Review gate: Target score is 10/10; acceptance floor is no P0/P1 findings, score >= 9.5/10, and all actionable review notes resolved or explicitly deferred.
-- Red check: `tools/validate-phase0.ps1` first failed with missing `PROJECT_STATE.md` and `docs/v1-migration-plan.md`.
-- Green check: `tools/validate-phase0.ps1` now passes 32/32 checks via direct call and `powershell -File`, covering Git facts, changed files, bilingual scope, placeholder scan, path scan, and secret scan.
-- Review score: First review 8.8/10; second review 9.3/10; third review 9.7/10 and checkpoint gate PASS; minor public-personalization note addressed.
-- Next step: Finish Phase 0, checkpoint commit locally, then start Phase 1 with README-first product positioning.
+- Red check: Phase 1 first failed because the legacy README was not SteadyAgent-first and `README.zh-CN.md` was missing; the expanded gate then failed on missing Compatibility and What SteadyAgent Is Not sections.
+- Green check: `tools/validate-phase1.ps1` passes the current full Phase 1 gate after the English README rewrite, Chinese README mirror, section-level public quality checks, link checks, placeholder scan, private-path scan, and secret scan.
+- Review score: Phase 0 finished at 9.7/10 and was committed in `beee495`; Phase 1 finished at 9.7/10 after section-level validator fixes and independent incremental review.
+- Next step: Start Phase 2 with public templates and rules, keeping current-vs-planned README claims aligned with shipped files.
 - Risks: The current repo is small and likely needs a near-total rewrite; scripts must be sanitized before publishing; Windows-first assumptions must be documented honestly.
-- Fact source: Branch `codex/steadyagent-v1`; legacy tag `legacy-zsh-agent-rules-v0.1`; preflight clean on 2026-07-05 except `.gitignore` template warnings.
+- Fact source: Branch `codex/steadyagent-v1`; Phase 0 commit `beee495`; legacy tag `legacy-zsh-agent-rules-v0.1`; preflight on 2026-07-05 shows only Phase 1 README/validator changes plus `.gitignore` template warnings.
