@@ -6,7 +6,7 @@ SteadyAgent is a local-first harness for AI coding agents such as Codex and Clau
 
 [中文说明](README.zh-CN.md)
 
-> Status: v1 rebuild in progress. The current branch defines the product narrative, validation gates, and migration plan before publishing install scripts.
+> Status: v1 rebuild in progress. This checkout includes public templates, rules, validation gates, and Windows-first tools before the final release package.
 
 ## Why SteadyAgent
 
@@ -29,8 +29,10 @@ This rebuild is not packaged as an installer yet. The current branch gives you:
 - a Chinese README with the same public positioning
 - public Codex and Claude Code templates in `templates/`
 - progressive workflow, verification, review, context, and safety rules in `rules/`
+- public tools in `tools/`: dry-run installer, Git preflight, checkpoint, hook smoke test, and a sample pre-commit hook
+- Windows-first tool documentation in [docs/tools.md](docs/tools.md)
 - a v1 migration plan in [docs/v1-migration-plan.md](docs/v1-migration-plan.md)
-- Phase 0, Phase 1, and Phase 2 validation scripts
+- Phase 0, Phase 1, Phase 2, and Phase 3 validation scripts
 - a documented TDD and independent review gate for every phase
 - a local checkpoint trail that separates legacy preservation from v1 work
 
@@ -38,9 +40,6 @@ This rebuild is not packaged as an installer yet. The current branch gives you:
 
 The public v1 release is planned to include:
 
-- Git preflight and checkpoint scripts so every task starts and ends with a known repo state
-- hook-based safety guards where the host supports deterministic hooks
-- a dry-run installer before any file is copied into a user's agent setup
 - skill packaging and release readiness checks
 - fresh-clone release instructions after the v1 branch is ready to publish
 
@@ -57,10 +56,10 @@ That loop is the core product. Every file in the repo exists to make one step mo
 SteadyAgent is not packaged as an installer yet. If you are reading this from a checkout that contains the v1 rebuild files, the useful first step is to verify the repository narrative and quality gate:
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-phase2.ps1
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-phase3.ps1
 ```
 
-The public v1 release will add fresh-clone instructions, a dry-run installer, and separate Codex / Claude Code setup commands.
+This checkout already includes a dry-run installer. The public v1 release will add fresh-clone instructions and packaged Codex / Claude Code setup commands.
 
 ## Safety Model
 
@@ -108,11 +107,11 @@ Completed locally:
 1. Phase 0: baseline, migration plan, validation gate, independent review score, and checkpoint commit.
 2. Phase 1: README-first public narrative, bilingual entrypoint, and public quality gate.
 3. Phase 2: public Codex / Claude templates, progressive rules, and rule quality gate.
+4. Phase 3: public tools, dry-run installer, hook smoke test, and Windows-first tool docs.
 
 Remaining v1 phases:
 
-1. Tools, hooks, and dry-run installer.
-2. Skill packaging and release readiness.
+1. Skill packaging and release readiness.
 
 See [docs/v1-migration-plan.md](docs/v1-migration-plan.md) for the full plan.
 

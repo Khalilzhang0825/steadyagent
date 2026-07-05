@@ -7,7 +7,7 @@ SteadyAgent 是一个 local-first 的 AI coding agent 工作流 harness，面向
 
 [English README](README.md)
 
-> 状态：v1 正在重构中。当前分支先定义产品叙事、验证门和迁移计划，安装脚本会在后续阶段发布。
+> 状态：v1 正在重构中。当前 checkout 已包含公开模板、规则、验证门和 Windows-first 工具，最终 release package 仍在后续阶段完成。
 
 ## 为什么需要 SteadyAgent / Why SteadyAgent
 
@@ -24,14 +24,16 @@ SteadyAgent 不替代 Codex 或 Claude Code。它是在这些 agent 外面加一
 
 ## 当前可用 / Available Today
 
-当前重构分支 not packaged as an installer yet，还没有安装器。现在已经可用的是：
+当前重构分支已经有 dry-run installer，但还没有打包成发布版安装器。现在已经可用的是：
 
 - SteadyAgent-first 的英文 README
 - 和英文定位一致的中文 README
 - `templates/` 中的 Codex 和 Claude Code 公开模板
 - `rules/` 中的 workflow、verification、review、context 和 safety 渐进规则
+- `tools/` 中的 dry-run 安装器、Git preflight、checkpoint、hook smoke test 和示例 pre-commit hook
+- [docs/tools.zh-CN.md](docs/tools.zh-CN.md) 中的 Windows-first 工具说明
 - [docs/v1-migration-plan.md](docs/v1-migration-plan.md) 中的 v1 迁移计划
-- Phase 0、Phase 1 和 Phase 2 验证脚本
+- Phase 0、Phase 1、Phase 2 和 Phase 3 验证脚本
 - 每个阶段都要经过 TDD 和 independent review 的质量门
 - 能区分旧版保护和 v1 迭代的本地 checkpoint 轨迹
 
@@ -39,10 +41,7 @@ SteadyAgent 不替代 Codex 或 Claude Code。它是在这些 agent 外面加一
 
 公开 v1 计划包含：
 
-- Git 预检和 checkpoint 脚本，让每个任务都有明确开始状态和结束状态
-- 宿主支持时可拦截高风险动作的 hooks
-- 复制任何文件到用户 agent 配置前先执行的 dry-run 安装器
-- skill 打包和发布准备检查
+- skill packaging 和 release readiness 检查
 - v1 分支可发布后的 fresh-clone instructions
 
 ## 核心闭环 / The Loop
@@ -55,13 +54,13 @@ understand -> plan -> red check -> smallest change -> green check -> review -> c
 
 ## 快速开始 / Quick Start
 
-SteadyAgent 当前 not packaged as an installer yet。如果你看到的是包含 v1 重构文件的 checkout，现在最有用的第一步，是验证仓库叙事和 Phase 2 质量门：
+SteadyAgent 当前 not packaged as an installer yet。如果你看到的是包含 v1 重构文件的 checkout，现在最有用的第一步，是验证仓库叙事和 Phase 3 质量门：
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-phase2.ps1
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-phase3.ps1
 ```
 
-公开 v1 会加入 fresh-clone instructions、dry-run 安装器，以及 Codex / Claude Code 分开的安装命令。
+当前 checkout 已包含 dry-run 安装器。公开 v1 会加入 fresh-clone instructions，以及 Codex / Claude Code 分开的 packaged setup commands。
 
 ## 安全模型 / Safety Model
 
@@ -109,11 +108,11 @@ SteadyAgent 不是：
 1. Phase 0：旧版基线、迁移计划、验证门、独立审查评分和 checkpoint commit。
 2. Phase 1：README-first 公开叙事、双语入口和公开质量门。
 3. Phase 2：Codex / Claude 公开模板、渐进规则库和规则质量门。
+4. Phase 3：公开工具、dry-run 安装器、hook smoke test 和 Windows-first 工具文档。
 
 剩余 v1 阶段：
 
-1. 工具、hooks 和 dry-run 安装器。
-2. Skill 打包和发布准备。
+1. Skill 打包和发布准备。
 
 完整计划见 [docs/v1-migration-plan.md](docs/v1-migration-plan.md)。
 

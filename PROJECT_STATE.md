@@ -1,13 +1,13 @@
 # SteadyAgent v1 State
 - Goal: Rebuild the outdated zsh-agent-rules repo into SteadyAgent, a bilingual, usable-first agent harness for Codex and Claude Code.
 - Scope: Create public-ready docs, templates, rules, skills, scripts, install flow, validation gates, and resume-ready project evidence. Do not push or publish until the project owner confirms.
-- Current phase: Phase 2 - public Codex / Claude templates, progressive rules, and rule quality gate.
+- Current phase: Phase 4 next - skill packaging and release readiness after the Phase 3 checkpoint.
 - Decisions: Use the SteadyAgent name; make the repo English-first with full Chinese parity; use TDD-style vertical slices; require independent review and scoring for every phase.
-- Validation: Phase 2 passes when `tools/validate-phase2.ps1` succeeds, templates and rules are public-safe, README current-vs-planned claims stay aligned, and independent review reaches the acceptance floor.
+- Validation: Phase 3 passes with `tools/validate-phase3.ps1` at 87 pass / 0 fail, public tools running in dry-run/smoke mode, README claims aligned, and independent review above the acceptance floor.
 - Review gate: Target score is 10/10; acceptance floor is no P0/P1 findings, score >= 9.5/10, and all actionable review notes resolved or explicitly deferred.
-- Red check: Phase 2 first failed because `templates/`, `rules/`, README Phase 2 claims, and the Phase 2 validation surface were missing.
-- Green check: `tools/validate-phase2.ps1` passes the current full Phase 2 gate after adding public templates, progressive rules, bilingual rule index, README alignment, privacy scans, and legacy-name checks.
-- Review score: Phase 0 finished at 9.7/10 in `beee495`; Phase 1 finished at 9.7/10 in `dac5ce3`; Phase 2 finished at 9.8/10 after planned-only README checks and copy-ready template fixes.
-- Next step: Start Phase 3 with public tools, hook strategy, and dry-run installer design without pushing or publishing until confirmed.
-- Risks: The current repo is small and likely needs a near-total rewrite; scripts must be sanitized before publishing; Windows-first assumptions must be documented honestly.
-- Fact source: Branch `codex/steadyagent-v1`; Phase 0 commit `beee495`; Phase 1 commit `dac5ce3`; legacy tag `legacy-zsh-agent-rules-v0.1`; preflight on 2026-07-05 clean except `.gitignore` template warnings.
+- Red check: Phase 3 first failed because public tools, hook smoke tests, tool docs, README Phase 3 claims, and the Phase 3 validation surface were missing.
+- Green check: `tools/validate-phase3.ps1` passes the current full Phase 3 gate after adding a dry-run installer, Git preflight, checkpoint dry-run, pre-commit hook, hook smoke test, Windows-first docs, UTF-8 validation, privacy scans, and README alignment.
+- Review score: Phase 0 finished at 9.7/10 in `beee495`; Phase 1 finished at 9.7/10 in `dac5ce3`; Phase 2 finished at 9.8/10 in `f6711e3`; Phase 3 finished at 9.7/10 with Gate PASS and no P0/P1 findings.
+- Next step: Start Phase 4 by packaging the SteadyAgent skill, adding release readiness files, validating fresh-clone instructions, and requesting final release review.
+- Risks: `install.ps1 -Overwrite` positive apply is not yet covered; hook secret detection is intentionally lightweight; cross-platform support remains documented as a later hardening target.
+- Fact source: Branch `codex/steadyagent-v1`; Phase 0 commit `beee495`; Phase 1 commit `dac5ce3`; Phase 2 commit `f6711e3`; legacy tag `legacy-zsh-agent-rules-v0.1`; preflight on 2026-07-05 clean except `.gitignore` template warnings.
