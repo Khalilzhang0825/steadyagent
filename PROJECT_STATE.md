@@ -1,0 +1,13 @@
+# SteadyAgent v1 State
+- Goal: Rebuild the outdated zsh-agent-rules repo into SteadyAgent, a bilingual, usable-first agent harness for Codex and Claude Code.
+- Scope: Create public-ready docs, templates, rules, skills, scripts, install flow, validation gates, and resume-ready project evidence. Do not push or publish until the project owner confirms.
+- Current phase: Phase 0 - preserve the legacy baseline, define the v1 migration plan, and install a minimal validation gate.
+- Decisions: Use the SteadyAgent name; make the repo English-first with full Chinese parity; use TDD-style vertical slices; require independent review and scoring for every phase.
+- Validation: Phase 0 passes when `tools/validate-phase0.ps1` succeeds, Git status is understood, and the independent review reports no blocker.
+- Review gate: Target score is 10/10; acceptance floor is no P0/P1 findings, score >= 9.5/10, and all actionable review notes resolved or explicitly deferred.
+- Red check: `tools/validate-phase0.ps1` first failed with missing `PROJECT_STATE.md` and `docs/v1-migration-plan.md`.
+- Green check: `tools/validate-phase0.ps1` now passes 32/32 checks via direct call and `powershell -File`, covering Git facts, changed files, bilingual scope, placeholder scan, path scan, and secret scan.
+- Review score: First review 8.8/10; second review 9.3/10; third review 9.7/10 and checkpoint gate PASS; minor public-personalization note addressed.
+- Next step: Finish Phase 0, checkpoint commit locally, then start Phase 1 with README-first product positioning.
+- Risks: The current repo is small and likely needs a near-total rewrite; scripts must be sanitized before publishing; Windows-first assumptions must be documented honestly.
+- Fact source: Branch `codex/steadyagent-v1`; legacy tag `legacy-zsh-agent-rules-v0.1`; preflight clean on 2026-07-05 except `.gitignore` template warnings.
