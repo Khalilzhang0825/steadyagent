@@ -3,11 +3,11 @@
 - Scope: Create public-ready docs, templates, rules, skills, scripts, install flow, validation gates, and resume-ready project evidence. Do not push or publish until the project owner confirms.
 - Current phase: Full rewrite audit complete - awaiting Khalil approval for the public v1 rewrite scope.
 - Decisions: Treat the current repo as disposable architecture; preserve only ideas that still match the current local workflow and are safe to open source.
-- Validation: Local workflow audit passed with `agent-config-audit.ps1` at 0 problems, `agent-hook-smoke-test.ps1` at 19/19 pass, and repo `tools/validate-phase3.ps1` at 87/0.
+- Validation: Local workflow audit passed with `agent-config-audit.ps1` at 0 problems, `agent-hook-smoke-test.ps1` at 24/24 pass, and repo `tools/validate-phase3.ps1` at 87/0.
 - Review gate: Target score is 10/10; acceptance floor is no P0/P1 findings, score >= 9.5/10, and all actionable review notes resolved or explicitly deferred.
 - Red check: Phase 3 first failed because public tools, hook smoke tests, tool docs, README Phase 3 claims, and the Phase 3 validation surface were missing.
 - Green check: `tools/validate-phase3.ps1` passes the current full Phase 3 gate after adding a dry-run installer, Git preflight, checkpoint dry-run, pre-commit hook, hook smoke test, Windows-first docs, UTF-8 validation, privacy scans, and README alignment.
 - Review score: Phase 0 finished at 9.7/10 in `beee495`; Phase 1 finished at 9.7/10 in `dac5ce3`; Phase 2 finished at 9.8/10 in `f6711e3`; Phase 3 finished at 9.7/10 with Gate PASS and no P0/P1 findings.
-- Next step: Khalil reviews the inclusion matrix; if approved, rewrite v1 around the real hook-driven harness instead of the current Phase 3 package-first structure.
-- Risks: Local config may contain private paths, personal preferences, or non-portable hooks; do not copy implementation directly into the public repo until the audit classifies it.
-- Fact source: Branch `codex/steadyagent-v1`; Phase 0 commit `beee495`; Phase 1 commit `dac5ce3`; Phase 2 commit `f6711e3`; Phase 3 commit `4bd0b19`; rewrite audit started after Khalil confirmed full replacement on 2026-07-06.
+- Next step: Khalil reviews the updated inclusion matrix; if approved, rewrite v1 around the real hook-driven harness, including PermissionRequest and PostToolUse audit support, instead of the current Phase 3 package-first structure.
+- Risks: Local config may contain private paths, personal preferences, or non-portable hooks; Codex now uses managed hooks with empty user `hooks.json`, so public templates must distinguish managed hooks from user-level hook config.
+- Fact source: Branch `codex/steadyagent-v1`; Phase 0 commit `beee495`; Phase 1 commit `dac5ce3`; Phase 2 commit `f6711e3`; Phase 3 commit `4bd0b19`; rewrite audit started after Khalil confirmed full replacement on 2026-07-06 and refreshed after local hook updates on 2026-07-06.
