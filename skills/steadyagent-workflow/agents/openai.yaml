@@ -1,0 +1,4 @@
+interface:
+  display_name: "SteadyAgent Workflow"
+  short_description: "Workflow guardrails for AI coding agents"
+  default_prompt: "Use steadyagent-workflow to structure this task with diagnosis, planning, verification, context control, review, and checkpoint evidence."
