@@ -35,12 +35,12 @@ Expected current results:
 
 ## Maintainer Decisions
 
-Confirm these before publishing:
+Confirmed on 2026-07-07:
 
 - License: keep MIT.
-- Repository name: keep `zsh-agent-rules` for continuity or rename to `steadyagent`.
-- Release type: publish `v1.0.0` or start with `v1.0.0-rc.1`.
-- Merge style: preserve commit history for evidence, or squash for a cleaner `main`.
+- Repository name: rename to `steadyagent`.
+- Release type: publish `v1.0.0`.
+- Merge style: use a PR merge commit to preserve the checkpoint evidence chain.
 
 Recommended path for resume evidence: push the branch, open a PR, let GitHub Actions run, then merge with a merge commit so the phase checkpoints remain visible.
 
@@ -89,7 +89,7 @@ Recommended topics:
 ai-agents, coding-agents, codex, claude-code, agents-md, claude-md, developer-tools, powershell, workflow-automation, prompt-engineering
 ```
 
-If renaming the repository, prefer `steadyagent`. GitHub should redirect the old URL, but update README links, release notes, and resume links after the rename.
+The repository rename target is `steadyagent`. GitHub should redirect the old URL, but update the local `origin` URL, README links, release notes, and resume links after the rename.
 
 ## Release
 

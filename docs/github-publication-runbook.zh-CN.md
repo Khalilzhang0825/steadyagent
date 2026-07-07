@@ -35,12 +35,12 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\test-agent-hooks
 
 ## Maintainer 决策
 
-发布前确认：
+2026-07-07 已确认：
 
 - License：保留 MIT。
-- 仓库名：为了连续性保留 `zsh-agent-rules`，或重命名为 `steadyagent`。
-- Release 类型：直接发布 `v1.0.0`，或先用 `v1.0.0-rc.1`。
-- Merge 方式：保留 commit history 作为证据链，或 squash 到更干净的 `main`。
+- 仓库名：重命名为 `steadyagent`。
+- Release 类型：发布 `v1.0.0`。
+- Merge 方式：使用 PR merge commit，保留 checkpoint 证据链。
 
 为了简历证据链，推荐先 push branch、开 PR、等待 GitHub Actions 通过，再用 merge commit 合并，这样阶段 checkpoint 会保留在公开历史里。
 
@@ -89,7 +89,7 @@ SteadyAgent: a bilingual local-first harness for Codex and Claude Code with work
 ai-agents, coding-agents, codex, claude-code, agents-md, claude-md, developer-tools, powershell, workflow-automation, prompt-engineering
 ```
 
-如果重命名仓库，推荐 `steadyagent`。GitHub 通常会重定向旧 URL，但重命名后仍要更新 README、release notes 和简历链接。
+仓库重命名目标是 `steadyagent`。GitHub 通常会重定向旧 URL，但重命名后仍要更新本地 `origin` URL、README、release notes 和简历链接。
 
 ## Release
 
