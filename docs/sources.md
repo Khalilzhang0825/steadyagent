@@ -1,6 +1,6 @@
 # Sources
 
-本项目是中文方法论整理，不逐字复刻来源内容。外部资料只作为设计依据和参考。
+本项目是 SteadyAgent 工作流 harness，不逐字复刻来源内容。外部资料只作为设计依据和参考。
 
 ## Claude Code Practices
 
@@ -39,4 +39,4 @@ The Mnilax/X post content was not fully retrievable as direct text in this works
 
 - `AGENTS.md`: Codex global guideline baseline.
 - `CLAUDE.md`: Claude Code global guideline baseline.
-- `skills/zsh-agent-workflow/`: reusable workflow skill.
+- `skills/steadyagent-workflow/`: reusable workflow skill.

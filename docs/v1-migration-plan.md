@@ -38,18 +38,31 @@ Chinese is kept as a first-class mirror, not a partial appendix:
 
 ## Target Repository Structure
 
-Planned v1 structure:
+Current v1 release-candidate structure:
 
 ```text
 steadyagent/
+├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   ├── pull_request_template.md
+│   └── workflows/
 ├── README.md
 ├── README.zh-CN.md
 ├── LICENSE
+├── CONTRIBUTING.md
+├── SECURITY.md
+├── RELEASE_NOTES.md
 ├── PROJECT_STATE.md
 ├── templates/
-│   ├── codex/AGENTS.md
-│   └── claude/CLAUDE.md
+│   ├── codex/
+│   │   ├── AGENTS.md
+│   │   └── requirements.managed-hooks.example.toml
+│   └── claude/
+│       ├── CLAUDE.md
+│       └── settings.hooks.example.json
 ├── rules/
+│   ├── README.md
+│   ├── README.zh-CN.md
 │   ├── workflow-routing.md
 │   ├── verification.md
 │   ├── review-gates.md
@@ -57,28 +70,37 @@ steadyagent/
 │   └── safety-boundaries.md
 ├── tools/
 │   ├── install.ps1
-│   ├── validate-phase0.ps1
 │   ├── git-preflight.ps1
 │   ├── git-checkpoint.ps1
+│   ├── test-hooks.ps1
+│   ├── test-agent-hooks.ps1
+│   ├── validate-phase0.ps1
+│   ├── validate-phase1.ps1
+│   ├── validate-phase2.ps1
+│   ├── validate-phase3.ps1
+│   ├── validate-runtime-slice.ps1
+│   ├── validate-release-readiness.ps1
 │   └── hooks/
 ├── skills/
-│   └── steady-agent-workflow/
+│   └── steadyagent-workflow/
 ├── docs/
-│   ├── architecture.md
-│   ├── architecture.zh-CN.md
-│   ├── safety-model.md
-│   ├── safety-model.zh-CN.md
-│   ├── troubleshooting.md
-│   ├── troubleshooting.zh-CN.md
+│   ├── hook-runtime.md
+│   ├── hook-runtime.zh-CN.md
+│   ├── tools.md
+│   ├── tools.zh-CN.md
+│   ├── release-checklist.md
+│   ├── release-checklist.zh-CN.md
 │   ├── resume-case-study.md
-│   └── resume-case-study.zh-CN.md
-└── .github/
-    ├── ISSUE_TEMPLATE/
-    ├── pull_request_template.md
-    └── workflows/
+│   ├── resume-case-study.zh-CN.md
+│   ├── release-plan.md
+│   ├── design-notes.md
+│   ├── sources.md
+│   └── v1-migration-plan.md
 ```
 
-The old root `AGENTS.md`, `CLAUDE.md`, and `skills/zsh-agent-workflow` can be treated as legacy source material, not final v1 architecture.
+The old root `AGENTS.md`, `CLAUDE.md`, and legacy workflow skill can be treated as source material, not final v1 architecture.
+
+After v1, separate architecture, safety-model, and troubleshooting guides can be added when they have tested content instead of duplicating the README.
 
 ## TDD And Review Gates
 
@@ -176,7 +198,7 @@ Validation:
 
 Deliverables:
 
-- rename and update the skill
+- rename and update the skill to `steadyagent-workflow`
 - add release notes
 - add license, contributing, security, issue and PR templates
 - prepare v1 release checklist
@@ -185,6 +207,7 @@ Validation:
 
 - skill metadata check
 - repository health check
+- fresh workspace install check
 - final independent release review
 
 ## Resume Narrative

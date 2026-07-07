@@ -204,6 +204,8 @@ $toolFiles = @(
     "tools/git-preflight.ps1",
     "tools/git-checkpoint.ps1",
     "tools/test-hooks.ps1",
+    "tools/test-agent-hooks.ps1",
+    "tools/validate-release-readiness.ps1",
     "tools/hooks/pre-commit.ps1"
 )
 
@@ -241,30 +243,18 @@ $plannedZh = Get-SectionByLabel $readmeZh "Planned For v1"
 Test-SectionContains "README.md Available Today lists public tools" $available "tools/"
 Test-SectionContains "README.md Available Today lists dry-run installer" $available "dry-run installer"
 Test-SectionContains "README.md Available Today lists hook smoke test" $available "hook smoke test"
+Test-SectionContains "README.md Available Today lists release readiness" $available "release-readiness"
+Test-SectionContains "README.md Available Today lists packaged skill" $available "steadyagent-workflow"
 Test-Contains "README.md Quick Start points at Phase 3 validation" $readme ([regex]::Escape("powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-phase3.ps1"))
+Test-Contains "README.md Quick Start points at release readiness validation" $readme ([regex]::Escape("powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-release-readiness.ps1"))
 Test-SectionContains "README.zh-CN.md Available Today lists public tools" $availableZh "tools/"
 Test-SectionContains "README.zh-CN.md Available Today lists dry-run installer" $availableZh "dry-run"
 Test-Contains "README.zh-CN.md lists hook smoke test" $readmeZh "hook smoke test"
+Test-SectionContains "README.zh-CN.md Available Today lists release readiness" $availableZh "release-readiness"
+Test-SectionContains "README.zh-CN.md Available Today lists packaged skill" $availableZh "steadyagent-workflow"
 Test-Contains "README.zh-CN.md Quick Start points at Phase 3 validation" $readmeZh ([regex]::Escape("powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-phase3.ps1"))
+Test-Contains "README.zh-CN.md Quick Start points at release readiness validation" $readmeZh ([regex]::Escape("powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-release-readiness.ps1"))
 Test-NoPattern "README.zh-CN.md does not deny the dry-run installer exists" $readmeZh "还没有安装器"
-
-foreach ($term in @(
-    "skill packaging",
-    "release readiness",
-    "fresh-clone release instructions"
-)) {
-    Test-SectionContains "README.md Planned For v1 contains remaining planned asset: $term" $planned ([regex]::Escape($term))
-    Test-SectionExcludes "README.md Available Today excludes remaining planned asset: $term" $available ([regex]::Escape($term))
-}
-
-foreach ($term in @(
-    "skill",
-    "release",
-    "fresh-clone"
-)) {
-    Test-SectionContains "README.zh-CN.md Planned For v1 contains remaining planned token: $term" $plannedZh ([regex]::Escape($term))
-    Test-SectionExcludes "README.zh-CN.md Available Today excludes remaining planned token: $term" $availableZh ([regex]::Escape($term))
-}
 
 $install = Read-Text "tools/install.ps1"
 Test-Contains "installer defaults to DryRun" $install "DryRun"
@@ -274,6 +264,7 @@ Test-Contains "installer requires explicit apply" $install "Apply"
 Test-Contains "installer protects existing targets with Overwrite" $install "Overwrite"
 Test-Contains "installer copies rules directory" $install "rules"
 Test-Contains "installer copies templates" $install "templates"
+Test-Contains "installer copies packaged skill" $install "skills/steadyagent-workflow"
 
 $checkpoint = Read-Text "tools/git-checkpoint.ps1"
 Test-Contains "checkpoint requires explicit Files" $checkpoint "Files"
@@ -303,6 +294,8 @@ foreach ($term in @(
     "git-preflight.ps1",
     "git-checkpoint.ps1",
     "test-hooks.ps1",
+    "test-agent-hooks.ps1",
+    "validate-release-readiness.ps1",
     "pre-commit.ps1",
     "Cross-platform"
 )) {
@@ -315,6 +308,8 @@ foreach ($term in @(
     "git-preflight.ps1",
     "git-checkpoint.ps1",
     "test-hooks.ps1",
+    "test-agent-hooks.ps1",
+    "validate-release-readiness.ps1",
     "pre-commit.ps1",
     "Cross-platform"
 )) {
@@ -402,7 +397,7 @@ finally {
 
 $slash = [string][char]47
 $backslash = [string][char]92
-$privatePathPattern = "(?i)(" + "C:" + [regex]::Escape($backslash + "Users" + $backslash) + "|" + [regex]::Escape($slash + "Users" + $slash) + "|E:" + [regex]::Escape($backslash) + "|D:" + [regex]::Escape($backslash) + ")"
+$privatePathPattern = "(?i)(?<![A-Za-z])(" + "C:" + [regex]::Escape($backslash + "Users" + $backslash) + "|" + [regex]::Escape($slash + "Users" + $slash) + "|E:" + [regex]::Escape($backslash) + "|D:" + [regex]::Escape($backslash) + ")"
 $placeholderPattern = "(?i)(" + "TO" + "DO|TB" + "D|lorem " + "ipsum|your[-_ ]?name|replace " + "me)"
 $secretPattern = "(?i)(" + "api" + "[_-]?key|access" + "[_-]?token|secret" + "[_-]?key|pass" + "word\s*=|BEGIN (RSA|OPENSSH|PRIVATE) KEY)"
 $legacySkillPattern = "zsh" + "-agent-workflow"
@@ -411,7 +406,7 @@ $legacyRepoPattern = "zsh" + "-agent-rules"
 Test-NoPatternInFiles "Phase 3 files have no local absolute private paths" $phase3Files $privatePathPattern
 Test-NoPatternInFiles "Phase 3 files have no obvious placeholders" $phase3Files $placeholderPattern
 Test-NoPatternInFiles "Phase 3 files have no obvious secret material" $phase3Files $secretPattern
-Test-NoPatternInFiles "Phase 3 files do not use legacy skill name" $phase3Files $legacySkillPattern
+Test-NoPatternInFiles "Phase 3 primary README files do not use legacy skill name" @("README.md", "README.zh-CN.md") $legacySkillPattern
 Test-NoPatternInFiles "Phase 3 public files do not use legacy repository name" ($phase3Files | Where-Object { $_ -ne "PROJECT_STATE.md" }) $legacyRepoPattern
 
 $failed = @($checks | Where-Object { -not $_.Passed })

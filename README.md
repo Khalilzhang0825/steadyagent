@@ -6,7 +6,7 @@ SteadyAgent is a local-first harness for AI coding agents such as Codex and Clau
 
 [中文说明](README.zh-CN.md)
 
-> Status: v1 rebuild in progress. This checkout includes public templates, rules, validation gates, Windows-first tools, and the first public hook runtime slice before the final release package.
+> Status: v1 release candidate. This checkout includes public templates, rules, validation gates, Windows-first tools, the public hook runtime slice, and release-readiness evidence.
 
 ## Why SteadyAgent
 
@@ -23,7 +23,7 @@ SteadyAgent wraps the agents you already use with practical workflow guardrails.
 
 ## Available Today
 
-This rebuild is not packaged as an installer yet. The current branch gives you:
+The current branch gives you:
 
 - a SteadyAgent-first English README
 - a Chinese README with the same public positioning
@@ -35,15 +35,19 @@ This rebuild is not packaged as an installer yet. The current branch gives you:
 - a v1 migration plan in [docs/v1-migration-plan.md](docs/v1-migration-plan.md)
 - Phase 0, Phase 1, Phase 2, Phase 3, and hook runtime validation scripts
 - installer support for copying hook runtime assets and rendering host-specific hook config examples
+- a release-readiness gate that validates a fresh workspace snapshot and installed hook runtime
+- the packaged `steadyagent-workflow` skill
+- release assets: MIT license, contributing guide, security policy, release notes, GitHub issue templates, PR template, and validation workflow
 - a documented TDD and independent review gate for every phase
 - a local checkpoint trail that separates legacy preservation from v1 work
 
-## Planned For v1
+## After v1
 
-The public v1 release is planned to include:
+Future releases can add:
 
-- skill packaging and release readiness checks
-- fresh-clone release instructions after the v1 branch is ready to publish
+- tested Linux and macOS installers
+- more host adapters
+- richer examples for team repositories
 
 ## The Loop
 
@@ -55,19 +59,26 @@ That loop is the core product. Every file in the repo exists to make one step mo
 
 ## Quick Start
 
-SteadyAgent is not packaged as an installer yet. If you are reading this from a checkout that contains the v1 rebuild files, the useful first step is to verify the repository narrative and quality gate:
+Run the release-readiness gate from a clean checkout:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-release-readiness.ps1
+```
+
+For smaller scoped checks, run the Phase 3 and hook runtime gates:
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-phase3.ps1
-```
-
-To verify the public hook runtime slice as well:
-
-```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-runtime-slice.ps1
 ```
 
-This checkout already includes a dry-run installer, hook templates, and host-specific rendered hook config examples. The public v1 release will add fresh-clone instructions and final release packaging notes.
+Preview the installer before writing files:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install.ps1 -HostTarget Both -TargetRoot .\steadyagent-install-preview
+```
+
+The installer is dry-run by default. Add `-Apply` only after reviewing the plan. See [docs/release-checklist.md](docs/release-checklist.md) before publishing a tag or GitHub release.
 
 ## Safety Model
 
@@ -118,11 +129,9 @@ Completed locally:
 4. Phase 3: public tools, dry-run installer, hook smoke test, and Windows-first tool docs.
 5. Hook runtime slice: public SessionStart, UserPromptSubmit, PreToolUse, PermissionRequest, PostToolUse, and PreCompact hooks for Codex and Claude Code.
 6. Installer runtime integration: dry-run/apply planning for hook scripts, hook docs, and rendered host config examples.
+7. Release readiness: packaged `steadyagent-workflow` skill, MIT license, contribution and security docs, GitHub templates, release checklist, resume case study, and fresh workspace validation.
 
-Remaining v1 phases:
-
-1. Skill packaging and release readiness.
-2. Fresh-clone release instructions.
+Publication is still a maintainer action: final approval, push, tag, and GitHub release are intentionally not automated.
 
 See [docs/v1-migration-plan.md](docs/v1-migration-plan.md) for the full plan.
 
@@ -154,4 +163,4 @@ SteadyAgent is also a case study in harness engineering: designing the environme
 
 ## License
 
-License selection is part of the v1 release-readiness phase.
+MIT. See [LICENSE](LICENSE).

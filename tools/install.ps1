@@ -7,7 +7,9 @@ param(
 
     [switch]$Apply,
 
-    [switch]$Overwrite
+    [switch]$Overwrite,
+
+    [switch]$RemoveLegacySkill
 )
 
 Set-StrictMode -Version Latest
@@ -72,6 +74,31 @@ function Write-RenderedTemplate {
     [System.IO.File]::WriteAllText($Destination, $rendered, [System.Text.Encoding]::UTF8)
 }
 
+function Get-LegacySkillPath {
+    param([string]$RootPath)
+
+    return (Join-Path $RootPath "skills/zsh-agent-workflow")
+}
+
+function Remove-LegacySkill {
+    param([string]$RootPath)
+
+    $legacyPath = Get-LegacySkillPath $RootPath
+    if (-not (Test-Path -LiteralPath $legacyPath)) {
+        return
+    }
+
+    $rootFull = [System.IO.Path]::GetFullPath($RootPath)
+    $expectedLegacy = [System.IO.Path]::GetFullPath((Join-Path $rootFull "skills/zsh-agent-workflow"))
+    $legacyFull = [System.IO.Path]::GetFullPath($legacyPath)
+    if ($legacyFull -ne $expectedLegacy) {
+        throw "Refusing to remove unexpected legacy path: $legacyFull"
+    }
+
+    Remove-Item -LiteralPath $legacyFull -Recurse -Force
+    Write-Host ("REMOVED legacy skill {0}" -f $legacyFull)
+}
+
 function Get-DefaultTargetRoot {
     param([string]$HostName)
 
@@ -85,9 +112,12 @@ function Get-DefaultTargetRoot {
 function Add-HostPlan {
     param(
         [System.Collections.Generic.List[object]]$Plan,
+        [System.Collections.Generic.List[string]]$InstallRoots,
         [string]$HostName,
         [string]$RootPath
     )
+
+    $InstallRoots.Add($RootPath) | Out-Null
 
     if ($HostName -eq "Codex") {
         Add-CopyPlan $Plan (Join-Path $Root "templates/codex/AGENTS.md") (Join-Path $RootPath "AGENTS.md")
@@ -99,6 +129,7 @@ function Add-HostPlan {
     }
 
     Add-CopyPlan $Plan (Join-Path $Root "rules") (Join-Path $RootPath "rules")
+    Add-CopyPlan $Plan (Join-Path $Root "skills/steadyagent-workflow") (Join-Path $RootPath "skills/steadyagent-workflow")
     $hookSourceRoot = Join-Path $Root "tools/hooks"
     foreach ($hookScript in @(Get-ChildItem -LiteralPath $hookSourceRoot -Filter "agent-hook-*.ps1" | Sort-Object Name)) {
         Add-CopyPlan $Plan $hookScript.FullName (Join-Path $RootPath ("tools/hooks/" + $hookScript.Name))
@@ -109,21 +140,24 @@ function Add-HostPlan {
 }
 
 $plan = New-Object System.Collections.Generic.List[object]
+$installRoots = New-Object System.Collections.Generic.List[string]
 
 if ($HostTarget -eq "Both") {
     if ($TargetRoot) {
-        Add-HostPlan $plan "Codex" (Join-Path $TargetRoot "codex")
-        Add-HostPlan $plan "Claude" (Join-Path $TargetRoot "claude")
+        Add-HostPlan $plan $installRoots "Codex" (Join-Path $TargetRoot "codex")
+        Add-HostPlan $plan $installRoots "Claude" (Join-Path $TargetRoot "claude")
     }
     else {
-        Add-HostPlan $plan "Codex" (Get-DefaultTargetRoot "Codex")
-        Add-HostPlan $plan "Claude" (Get-DefaultTargetRoot "Claude")
+        Add-HostPlan $plan $installRoots "Codex" (Get-DefaultTargetRoot "Codex")
+        Add-HostPlan $plan $installRoots "Claude" (Get-DefaultTargetRoot "Claude")
     }
 }
 else {
     $rootPath = if ($TargetRoot) { $TargetRoot } else { Get-DefaultTargetRoot $HostTarget }
-    Add-HostPlan $plan $HostTarget $rootPath
+    Add-HostPlan $plan $installRoots $HostTarget $rootPath
 }
+
+$legacyTargets = @($installRoots | Where-Object { Test-Path -LiteralPath (Get-LegacySkillPath $_) })
 
 if (-not $Apply) {
     Write-Host "DRY-RUN SteadyAgent install"
@@ -132,6 +166,15 @@ if (-not $Apply) {
     foreach ($item in $plan) {
         $verb = if ($item.Kind -eq "Render") { "render" } else { "copy" }
         Write-Host ("WOULD {0} {1} -> {2}" -f $verb, $item.Source, $item.Destination)
+    }
+    foreach ($rootPath in $legacyTargets) {
+        $legacyPath = Get-LegacySkillPath $rootPath
+        if ($RemoveLegacySkill) {
+            Write-Host ("WOULD remove legacy skill {0}" -f $legacyPath)
+        }
+        else {
+            Write-Host ("LEGACY skill detected {0}; pass -RemoveLegacySkill with -Apply to remove it." -f $legacyPath)
+        }
     }
     exit 0
 }
@@ -146,6 +189,14 @@ if (($existing.Count -gt 0) -and (-not $Overwrite)) {
 }
 
 Write-Host "APPLY SteadyAgent install"
+foreach ($rootPath in $legacyTargets) {
+    if ($RemoveLegacySkill) {
+        Remove-LegacySkill $rootPath
+    }
+    else {
+        Write-Host ("LEGACY skill detected {0}; leaving it in place. Re-run with -RemoveLegacySkill to remove it." -f (Get-LegacySkillPath $rootPath))
+    }
+}
 foreach ($item in $plan) {
     $destinationParent = Split-Path -Parent $item.Destination
     if (-not (Test-Path -LiteralPath $destinationParent)) {

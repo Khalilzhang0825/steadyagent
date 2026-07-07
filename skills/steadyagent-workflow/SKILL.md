@@ -1,11 +1,11 @@
 ---
-name: zsh-agent-workflow
-description: Chinese AI coding agent workflow for Codex and Claude Code. Use when planning, debugging, reviewing, refactoring, creating or improving AGENTS.md/CLAUDE.md, building skills, publishing agent-rule repositories, or running complex multi-step coding tasks that need staged diagnosis, context control, verification loops, subagent strategy, HTML artifacts, and anti-overengineering guardrails.
+name: steadyagent-workflow
+description: Local-first AI coding agent workflow for Codex and Claude Code. Use when planning, debugging, reviewing, refactoring, creating or improving AGENTS.md/CLAUDE.md, building skills, publishing agent harness repositories, or running complex multi-step coding tasks that need staged diagnosis, context control, verification loops, subagent strategy, release evidence, and anti-overengineering guardrails.
 ---
 
-# ZSH Agent Workflow
+# SteadyAgent Workflow
 
-Use this skill to structure non-trivial AI coding agent work for Chinese users. Keep the main context lean: use this file for the workflow, and load references only when the task needs them.
+Use this skill to structure non-trivial AI coding agent work. Keep the main context lean: use this file for the workflow, and load references only when the task needs them.
 
 ## Decision Gate
 
@@ -13,7 +13,7 @@ Use this skill to structure non-trivial AI coding agent work for Chinese users. 
 - Ambiguous task: diagnose first; state missing information, assumptions, and likely paths.
 - Bug task: reproduce or find observable evidence before proposing a fix.
 - Multi-step task: use the staged workflow below.
-- Rule, prompt, or skill design: keep permanent instructions short and move detailed knowledge to references.
+- Rule, prompt, release, or skill design: keep permanent instructions short and move detailed knowledge to references.
 
 ## Staged Workflow
 
@@ -41,6 +41,10 @@ Use this skill to structure non-trivial AI coding agent work for Chinese users. 
    - For risky work, run an independent review or subagent pass.
    - Check edge cases, permissions, concurrency, caching, migration, rollback, and test gaps.
    - Record only durable decisions and validation results.
+6. Checkpoint
+   - Re-run the relevant gate.
+   - Review Git status and diff.
+   - Create a scoped checkpoint commit when validation passes.
 
 ## Reference Loading
 
