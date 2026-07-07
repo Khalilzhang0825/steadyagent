@@ -6,7 +6,7 @@ SteadyAgent is a local-first harness for AI coding agents such as Codex and Clau
 
 [中文说明](README.zh-CN.md)
 
-> Status: v1 rebuild in progress. This checkout includes public templates, rules, validation gates, and Windows-first tools before the final release package.
+> Status: v1 rebuild in progress. This checkout includes public templates, rules, validation gates, Windows-first tools, and the first public hook runtime slice before the final release package.
 
 ## Why SteadyAgent
 
@@ -29,10 +29,11 @@ This rebuild is not packaged as an installer yet. The current branch gives you:
 - a Chinese README with the same public positioning
 - public Codex and Claude Code templates in `templates/`
 - progressive workflow, verification, review, context, and safety rules in `rules/`
-- public tools in `tools/`: dry-run installer, Git preflight, checkpoint, hook smoke test, and a sample pre-commit hook
+- public tools in `tools/`: dry-run installer, Git preflight, checkpoint, hook smoke tests, and guardrail hooks
 - Windows-first tool documentation in [docs/tools.md](docs/tools.md)
+- a hook runtime guide in [docs/hook-runtime.md](docs/hook-runtime.md)
 - a v1 migration plan in [docs/v1-migration-plan.md](docs/v1-migration-plan.md)
-- Phase 0, Phase 1, Phase 2, and Phase 3 validation scripts
+- Phase 0, Phase 1, Phase 2, Phase 3, and hook runtime validation scripts
 - a documented TDD and independent review gate for every phase
 - a local checkpoint trail that separates legacy preservation from v1 work
 
@@ -59,7 +60,13 @@ SteadyAgent is not packaged as an installer yet. If you are reading this from a 
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-phase3.ps1
 ```
 
-This checkout already includes a dry-run installer. The public v1 release will add fresh-clone instructions and packaged Codex / Claude Code setup commands.
+To verify the public hook runtime slice as well:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-runtime-slice.ps1
+```
+
+This checkout already includes a dry-run installer and hook templates. The public v1 release will add fresh-clone instructions and packaged Codex / Claude Code setup commands.
 
 ## Safety Model
 
@@ -70,7 +77,7 @@ SteadyAgent separates soft guidance from hard checks:
 | Instructions | Set expectations for the agent | Keep changes scoped, verify behavior, report risks |
 | Rules | Load detailed workflow only when needed | Review gates, context recovery, safety boundaries |
 | Scripts | Make routine checks deterministic | Git preflight, checkpoint commits, validation gates |
-| Hooks | Block risky actions when supported | Dangerous shell commands, secret file edits |
+| Hooks | Block risky actions when supported | Dangerous shell commands, secret file edits, risky permission requests |
 | Reviews | Catch gaps before checkpointing | Independent score, findings first |
 
 Codex and Claude Code do not expose the same enforcement surfaces, so SteadyAgent documents those differences instead of pretending one setup fits every host.
@@ -81,8 +88,8 @@ SteadyAgent is designed around local developer machines first.
 
 | Host | v1 intent | Enforcement level |
 | --- | --- | --- |
-| Codex | Instructions, skills, validation scripts, Git checkpoint workflow | Strong guidance plus Git hooks where available |
-| Claude Code | Instructions, skills, validation scripts, lifecycle hooks, Git checkpoint workflow | Stronger deterministic enforcement through hooks |
+| Codex | Instructions, skills, validation scripts, managed hook templates, Git checkpoint workflow | Strong guidance plus managed lifecycle hooks where available |
+| Claude Code | Instructions, skills, validation scripts, lifecycle hooks, Git checkpoint workflow | Stronger deterministic enforcement through settings hooks |
 | Other coding agents | Reuse the public rules and scripts manually | Best-effort until host-specific adapters exist |
 
 The first public release is Windows-first because the original workflow was proven on Windows and PowerShell. Cross-platform support should be added through tested scripts, not undocumented assumptions.
@@ -108,10 +115,12 @@ Completed locally:
 2. Phase 1: README-first public narrative, bilingual entrypoint, and public quality gate.
 3. Phase 2: public Codex / Claude templates, progressive rules, and rule quality gate.
 4. Phase 3: public tools, dry-run installer, hook smoke test, and Windows-first tool docs.
+5. Hook runtime slice: public SessionStart, UserPromptSubmit, PreToolUse, PermissionRequest, PostToolUse, and PreCompact hooks for Codex and Claude Code.
 
 Remaining v1 phases:
 
-1. Skill packaging and release readiness.
+1. Installer integration for the hook runtime.
+2. Skill packaging and release readiness.
 
 See [docs/v1-migration-plan.md](docs/v1-migration-plan.md) for the full plan.
 

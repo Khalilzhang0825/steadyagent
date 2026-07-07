@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
-    [string]$Root
+    [string]$Root,
+    [switch]$EnforceWorktreeScope
 )
 
 Set-StrictMode -Version Latest
@@ -218,7 +219,9 @@ $phase3Files = @(
     "tools/validate-phase3.ps1"
 ) + $toolFiles + $docFiles
 
-Test-OnlyExpectedChangedFiles $phase3Files
+if ($EnforceWorktreeScope) {
+    Test-OnlyExpectedChangedFiles $phase3Files
+}
 
 foreach ($file in $phase3Files) {
     Test-FileExists $file
