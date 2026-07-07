@@ -22,6 +22,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-release
 - 确认 `LICENSE`、`CONTRIBUTING.md`、`SECURITY.md` 和 `RELEASE_NOTES.md` 都存在。
 - 确认 `.github/` issue/PR 模板和 validation workflow 已存在。
 - 确认公开 skill 路径是 `skills/steadyagent-workflow/`。
+- 远端 push、PR、tag 或 GitHub release 前，先按 [docs/github-publication-runbook.zh-CN.md](github-publication-runbook.zh-CN.md) 执行。
 - 确认旧安装目标里没有残留 `skills/zsh-agent-workflow/`；升级时需要清理可使用 `tools/install.ps1 -RemoveLegacySkill`。
 - 确认 `git diff --check` 没有 whitespace errors。
 - 确认 checkpoint commit 后 `git status --short` 干净。
@@ -32,4 +33,5 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-release
 - 验证命令输出。
 - 独立 review 分数和 findings。
 - Checkpoint commit hash。
+- 发布后的 PR URL、GitHub Actions URL、release URL 和 repository metadata 更新记录。
 - 已知边界：Windows-first 脚本、不同 host 的 hook 能力不完全一致、自动化验证不会写入用户真实全局 host 配置。

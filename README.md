@@ -79,6 +79,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install.ps1 -Hos
 ```
 
 The installer is dry-run by default. Add `-Apply` only after reviewing the plan. See [docs/release-checklist.md](docs/release-checklist.md) before publishing a tag or GitHub release.
+For the GitHub push, PR, metadata, and release sequence, use [docs/github-publication-runbook.md](docs/github-publication-runbook.md).
 
 ## Safety Model
 

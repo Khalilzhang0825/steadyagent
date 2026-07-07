@@ -80,6 +80,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install.ps1 -Hos
 ```
 
 安装器默认 dry-run。只有确认计划后才加 `-Apply`。发布 tag 或 GitHub release 前，先看 [docs/release-checklist.zh-CN.md](docs/release-checklist.zh-CN.md)。
+GitHub push、PR、metadata 和 release 执行顺序见 [docs/github-publication-runbook.zh-CN.md](docs/github-publication-runbook.zh-CN.md)。
 
 ## 安全模型 / Safety Model
 

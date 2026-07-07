@@ -77,6 +77,12 @@ function Test-Contains {
     Add-Check $Label (($null -ne $Text) -and ($Text -match $Pattern)) "Missing required content"
 }
 
+function New-UnicodeString {
+    param([int[]]$CodePoints)
+
+    return -join ($CodePoints | ForEach-Object { [char]$_ })
+}
+
 function Test-NoPattern {
     param(
         [string]$Label,
@@ -446,6 +452,8 @@ $requiredFiles = @(
     ".github/workflows/validate.yml",
     "docs/release-checklist.md",
     "docs/release-checklist.zh-CN.md",
+    "docs/github-publication-runbook.md",
+    "docs/github-publication-runbook.zh-CN.md",
     "docs/resume-case-study.md",
     "docs/resume-case-study.zh-CN.md",
     "skills/steadyagent-workflow/SKILL.md",
@@ -485,6 +493,15 @@ $releaseNotes = Read-Text "RELEASE_NOTES.md"
 $gitignore = Read-Text ".gitignore"
 $releaseChecklist = Read-Text "docs/release-checklist.md"
 $releaseChecklistZh = Read-Text "docs/release-checklist.zh-CN.md"
+$publicationRunbook = Read-Text "docs/github-publication-runbook.md"
+$publicationRunbookZh = Read-Text "docs/github-publication-runbook.zh-CN.md"
+$publicationRunbookRelease = Get-SectionByLabel $publicationRunbook "Release"
+$publicationRunbookReleaseZh = Get-SectionByLabel $publicationRunbookZh "Release"
+$publicationRunbookPostPublish = Get-SectionByLabel $publicationRunbook "Post-Publish Checks"
+$zhPostPublishLabel = New-UnicodeString @(0x53d1, 0x5e03, 0x540e, 0x68c0, 0x67e5)
+$publicationRunbookPostPublishZh = Get-SectionByLabel $publicationRunbookZh $zhPostPublishLabel
+$zhExplicitApproval = New-UnicodeString @(0x660e, 0x786e, 0x6279, 0x51c6)
+$zhVersionNumber = New-UnicodeString @(0x7248, 0x672c, 0x53f7)
 $resumeCaseStudy = Read-Text "docs/resume-case-study.md"
 $resumeCaseStudyZh = Read-Text "docs/resume-case-study.zh-CN.md"
 $workflow = Read-Text ".github/workflows/validate.yml"
@@ -518,6 +535,18 @@ Test-Contains ".gitignore excludes build" $gitignore "build/"
 Test-Contains "release checklist includes fresh clone validation" $releaseChecklist "fresh-clone"
 Test-Contains "release checklist includes no-push boundary" $releaseChecklist "Do not push"
 Test-Contains "Chinese release checklist includes fresh clone validation" $releaseChecklistZh "fresh-clone"
+Test-Contains "publication runbook gates remote push approval" $publicationRunbook "Only run after explicit maintainer approval"
+Test-Contains "publication runbook gates tag and release approval" $publicationRunbookRelease "explicit maintainer approval.+tag.+release"
+Test-Contains "publication runbook confirms tag target commit" $publicationRunbookRelease "tag name.+target commit"
+Test-Contains "publication runbook includes repository metadata" $publicationRunbook "Repository Metadata"
+Test-Contains "publication runbook records GitHub Actions evidence" $publicationRunbookPostPublish "GitHub Actions run URL"
+Test-Contains "publication runbook records metadata evidence" $publicationRunbookPostPublish "repository metadata update notes"
+Test-Contains "Chinese publication runbook gates remote push approval" $publicationRunbookZh (([regex]::Escape($zhExplicitApproval)) + ".+explicit maintainer approval")
+Test-Contains "Chinese publication runbook gates tag and release approval" $publicationRunbookReleaseZh (([regex]::Escape($zhExplicitApproval)) + ".+tag/release")
+Test-Contains "Chinese publication runbook confirms release version and commit" $publicationRunbookReleaseZh (([regex]::Escape($zhVersionNumber)) + ".+commit")
+Test-Contains "Chinese publication runbook includes repository metadata" $publicationRunbookZh "Repository Metadata"
+Test-Contains "Chinese publication runbook records GitHub Actions evidence" $publicationRunbookPostPublishZh "GitHub Actions run URL"
+Test-Contains "Chinese publication runbook records metadata evidence" $publicationRunbookPostPublishZh "repository metadata update notes"
 Test-Contains "resume case study explains evidence" $resumeCaseStudy "Evidence"
 Test-Contains "Chinese resume case study explains evidence" $resumeCaseStudyZh "release-readiness"
 Test-Contains "GitHub workflow runs on Windows" $workflow "windows-latest"
@@ -544,6 +573,8 @@ $releaseSurface = @(
     "docs/hook-runtime.zh-CN.md",
     "docs/release-checklist.md",
     "docs/release-checklist.zh-CN.md",
+    "docs/github-publication-runbook.md",
+    "docs/github-publication-runbook.zh-CN.md",
     "docs/resume-case-study.md",
     "docs/resume-case-study.zh-CN.md",
     "templates/codex/AGENTS.md",

@@ -22,6 +22,7 @@ During local WIP before the checkpoint commit, use `-AllowDirty` to validate the
 - Confirm `LICENSE`, `CONTRIBUTING.md`, `SECURITY.md`, and `RELEASE_NOTES.md` are present.
 - Confirm `.github/` templates and the validation workflow are present.
 - Confirm the public skill path is `skills/steadyagent-workflow/`.
+- Confirm [docs/github-publication-runbook.md](github-publication-runbook.md) is followed before any remote push, PR, tag, or GitHub release.
 - Confirm legacy installed targets do not still contain `skills/zsh-agent-workflow/`; use `tools/install.ps1 -RemoveLegacySkill` during upgrades when needed.
 - Confirm `git diff --check` has no whitespace errors.
 - Confirm `git status --short` is clean after the checkpoint commit.
@@ -32,4 +33,5 @@ During local WIP before the checkpoint commit, use `-AllowDirty` to validate the
 - Validation command outputs.
 - Independent review score and findings.
 - Checkpoint commit hash.
+- PR URL, GitHub Actions URL, release URL, and repository metadata update notes after publication.
 - Known limits: Windows-first scripts, host-specific hook differences, no real global host install during automated validation.
