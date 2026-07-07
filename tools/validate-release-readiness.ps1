@@ -152,18 +152,25 @@ function Get-RepositoryStatusLines {
 
     if ($code -ne 0) {
         Add-Check "git status is readable" $false "git status failed"
-        return $null
+        return [PSCustomObject]@{
+            Success = $false
+            Lines = @()
+        }
     }
 
-    return @($status | Where-Object { $_ })
+    return [PSCustomObject]@{
+        Success = $true
+        Lines = @($status | Where-Object { $_ })
+    }
 }
 
 function Test-RepositoryCleanOrAllowed {
-    $status = Get-RepositoryStatusLines
-    if ($null -eq $status) {
-        return
+    $statusResult = Get-RepositoryStatusLines
+    if (-not $statusResult.Success) {
+        return $false
     }
 
+    $status = @($statusResult.Lines)
     if ($status.Count -eq 0) {
         Add-Check "repository is clean for release validation" $true "OK"
         return $true
