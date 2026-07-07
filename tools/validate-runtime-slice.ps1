@@ -108,6 +108,66 @@ function Invoke-CheckedCommand {
     }
 }
 
+function Test-SteadyAgentTomlShape {
+    param([string]$Text)
+
+    if (-not $Text) { return $false }
+
+    $allowedSections = @(
+        "features",
+        "hooks",
+        "hooks.SessionStart",
+        "hooks.SessionStart.hooks",
+        "hooks.UserPromptSubmit",
+        "hooks.UserPromptSubmit.hooks",
+        "hooks.PreToolUse",
+        "hooks.PreToolUse.hooks",
+        "hooks.PermissionRequest",
+        "hooks.PermissionRequest.hooks",
+        "hooks.PostToolUse",
+        "hooks.PostToolUse.hooks",
+        "hooks.PreCompact",
+        "hooks.PreCompact.hooks"
+    )
+    $allowedKeys = @(
+        "hooks",
+        "unified_exec",
+        "windows_managed_dir",
+        "matcher",
+        "type",
+        "command",
+        "timeout",
+        "statusMessage"
+    )
+
+    foreach ($rawLine in ($Text -split "`r?`n")) {
+        $line = $rawLine.Trim()
+        if (-not $line -or $line.StartsWith("#")) { continue }
+
+        $sectionMatch = [regex]::Match($line, '^\[\[?([A-Za-z0-9_.]+)\]?\]$')
+        if ($sectionMatch.Success) {
+            if ($allowedSections -notcontains $sectionMatch.Groups[1].Value) { return $false }
+            continue
+        }
+
+        $assignmentMatch = [regex]::Match($line, '^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+)$')
+        if (-not $assignmentMatch.Success) { return $false }
+        if ($allowedKeys -notcontains $assignmentMatch.Groups[1].Value) { return $false }
+
+        $value = $assignmentMatch.Groups[2].Value.Trim()
+        if ($value -match '^(true|false)$') { continue }
+        if ($value -match '^[0-9]+$') { continue }
+        if ($value -match "^'[^']*'$") { continue }
+        if ($value -match '^"([^"\\]|\\.)*"$') { continue }
+        return $false
+    }
+
+    return ($Text -match "\[features\]") -and
+        ($Text -match "\[hooks\]") -and
+        ($Text -match "\[\[hooks[.]PreToolUse\]\]") -and
+        ($Text -match "agent-hook-context[.]ps1")
+}
+
 $runtimeFiles = @(
     "tools/hooks/agent-hook-utils.ps1",
     "tools/hooks/agent-hook-context.ps1",
@@ -199,6 +259,73 @@ try {
 }
 finally {
     Pop-Location
+}
+
+$tempInstallRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("steadyagent-runtime-install-" + [guid]::NewGuid().ToString("N"))
+try {
+    Push-Location $Root
+    try {
+        Invoke-CheckedCommand "installer dry-run plans hook runtime assets" {
+            & powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\tools\install.ps1" -HostTarget Both -TargetRoot $tempInstallRoot
+        } {
+            param($output)
+            $text = ($output | Out-String)
+            return ($text -match "DRY-RUN") -and
+                ($text -match "agent-hook-context[.]ps1") -and
+                ($text -match "settings[.]hooks[.]example[.]json") -and
+                ($text -match "requirements[.]managed-hooks[.]example[.]toml") -and
+                ($text -match "hook-runtime[.]md")
+        } "Installer dry-run does not expose runtime assets"
+
+        Invoke-CheckedCommand "installer apply writes hook runtime assets" {
+            & powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\tools\install.ps1" -HostTarget Both -TargetRoot $tempInstallRoot -Apply
+        } {
+            param($output)
+            $codexRoot = Join-Path $tempInstallRoot "codex"
+            $claudeRoot = Join-Path $tempInstallRoot "claude"
+            $codexHook = Join-Path $codexRoot "tools/hooks/agent-hook-context.ps1"
+            $claudeHook = Join-Path $claudeRoot "tools/hooks/agent-hook-context.ps1"
+            $codexTemplate = Join-Path $codexRoot "requirements.managed-hooks.example.toml"
+            $claudeTemplate = Join-Path $claudeRoot "settings.hooks.example.json"
+            $codexDoc = Join-Path $codexRoot "docs/hook-runtime.md"
+            $claudeDoc = Join-Path $claudeRoot "docs/hook-runtime.md"
+            if (-not ((Test-Path -LiteralPath $codexHook) -and
+                (Test-Path -LiteralPath $claudeHook) -and
+                (Test-Path -LiteralPath $codexTemplate) -and
+                (Test-Path -LiteralPath $claudeTemplate) -and
+                (Test-Path -LiteralPath $codexDoc) -and
+                (Test-Path -LiteralPath $claudeDoc))) {
+                return $false
+            }
+            $codexTemplateText = [System.IO.File]::ReadAllText($codexTemplate, [System.Text.Encoding]::UTF8)
+            $claudeTemplateText = [System.IO.File]::ReadAllText($claudeTemplate, [System.Text.Encoding]::UTF8)
+            if (($codexTemplateText -match "STEADYAGENT_HOME") -or ($claudeTemplateText -match "STEADYAGENT_HOME")) {
+                return $false
+            }
+            if (-not (Test-SteadyAgentTomlShape -Text $codexTemplateText)) {
+                return $false
+            }
+            $null = $claudeTemplateText | ConvertFrom-Json
+            $codexSmoke = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $codexRoot "tools/test-agent-hooks.ps1")
+            $codexSmokeCode = $LASTEXITCODE
+            $claudeSmoke = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $claudeRoot "tools/test-agent-hooks.ps1")
+            $claudeSmokeCode = $LASTEXITCODE
+            return ($codexTemplateText -match "agent-hook-context[.]ps1") -and
+                ($claudeTemplateText -match "agent-hook-context[.]ps1") -and
+                ($codexSmokeCode -eq 0) -and
+                ($claudeSmokeCode -eq 0) -and
+                (($codexSmoke | Out-String) -match "0 failed") -and
+                (($claudeSmoke | Out-String) -match "0 failed")
+        } "Installer apply did not write usable runtime assets"
+    }
+    finally {
+        Pop-Location
+    }
+}
+finally {
+    if (Test-Path -LiteralPath $tempInstallRoot) {
+        Remove-Item -LiteralPath $tempInstallRoot -Recurse -Force
+    }
 }
 
 $slash = [string][char]47

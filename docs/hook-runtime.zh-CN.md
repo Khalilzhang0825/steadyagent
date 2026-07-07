@@ -19,6 +19,8 @@ Claude Code 使用 `settings.json` 注册 hook，公开模板见 `templates/clau
 
 两个模板都使用 `STEADYAGENT_HOME` 作为占位符。真正应用前需要替换成 checkout 或安装目录。
 
+当传入目标根目录时，`tools/install.ps1` 会自动渲染 host-specific examples：Codex 得到已替换目标路径的 `requirements.managed-hooks.example.toml`，Claude Code 得到已替换目标路径的 `settings.hooks.example.json`。
+
 ## Logs
 
 如果设置了 `STEADYAGENT_LOG_DIR`，hook 日志写入该目录；否则写入用户本地应用数据目录。

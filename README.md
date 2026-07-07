@@ -34,6 +34,7 @@ This rebuild is not packaged as an installer yet. The current branch gives you:
 - a hook runtime guide in [docs/hook-runtime.md](docs/hook-runtime.md)
 - a v1 migration plan in [docs/v1-migration-plan.md](docs/v1-migration-plan.md)
 - Phase 0, Phase 1, Phase 2, Phase 3, and hook runtime validation scripts
+- installer support for copying hook runtime assets and rendering host-specific hook config examples
 - a documented TDD and independent review gate for every phase
 - a local checkpoint trail that separates legacy preservation from v1 work
 
@@ -66,7 +67,7 @@ To verify the public hook runtime slice as well:
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-runtime-slice.ps1
 ```
 
-This checkout already includes a dry-run installer and hook templates. The public v1 release will add fresh-clone instructions and packaged Codex / Claude Code setup commands.
+This checkout already includes a dry-run installer, hook templates, and host-specific rendered hook config examples. The public v1 release will add fresh-clone instructions and final release packaging notes.
 
 ## Safety Model
 
@@ -116,11 +117,12 @@ Completed locally:
 3. Phase 2: public Codex / Claude templates, progressive rules, and rule quality gate.
 4. Phase 3: public tools, dry-run installer, hook smoke test, and Windows-first tool docs.
 5. Hook runtime slice: public SessionStart, UserPromptSubmit, PreToolUse, PermissionRequest, PostToolUse, and PreCompact hooks for Codex and Claude Code.
+6. Installer runtime integration: dry-run/apply planning for hook scripts, hook docs, and rendered host config examples.
 
 Remaining v1 phases:
 
-1. Installer integration for the hook runtime.
-2. Skill packaging and release readiness.
+1. Skill packaging and release readiness.
+2. Fresh-clone release instructions.
 
 See [docs/v1-migration-plan.md](docs/v1-migration-plan.md) for the full plan.
 

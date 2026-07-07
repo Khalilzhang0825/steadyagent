@@ -19,6 +19,8 @@ Claude Code uses `settings.json`; start from `templates/claude/settings.hooks.ex
 
 Both templates use `STEADYAGENT_HOME` as a placeholder. Replace it with the checkout or install directory before applying.
 
+`tools/install.ps1` renders host-specific examples for you when a target root is provided. It writes Codex `requirements.managed-hooks.example.toml` and Claude Code `settings.hooks.example.json` with the selected target root already substituted.
+
 ## Logs
 
 Hook logs go to `STEADYAGENT_LOG_DIR` when that environment variable is set. Otherwise they default to a user-local application data directory.

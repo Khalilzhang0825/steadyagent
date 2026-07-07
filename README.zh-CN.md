@@ -35,6 +35,7 @@ SteadyAgent 不替代 Codex 或 Claude Code。它是在这些 agent 外面加一
 - [docs/hook-runtime.zh-CN.md](docs/hook-runtime.zh-CN.md) 中的 hook runtime 说明
 - [docs/v1-migration-plan.md](docs/v1-migration-plan.md) 中的 v1 迁移计划
 - Phase 0、Phase 1、Phase 2、Phase 3 和 hook runtime 验证脚本
+- installer 已支持复制 hook runtime assets，并渲染按目标路径生成的 hook config examples
 - 每个阶段都要经过 TDD 和 independent review 的质量门
 - 能区分旧版保护和 v1 迭代的本地 checkpoint 轨迹
 
@@ -67,7 +68,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-phase3.
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-runtime-slice.ps1
 ```
 
-当前 checkout 已包含 dry-run 安装器和 hook templates。公开 v1 会加入 fresh-clone instructions，以及 Codex / Claude Code 分开的 packaged setup commands。
+当前 checkout 已包含 dry-run 安装器、hook templates，以及按目标路径渲染的 host-specific hook config examples。公开 v1 会加入 fresh-clone instructions 和最终 release packaging notes。
 
 ## 安全模型 / Safety Model
 
@@ -117,11 +118,12 @@ SteadyAgent 不是：
 3. Phase 2：Codex / Claude 公开模板、渐进规则库和规则质量门。
 4. Phase 3：公开工具、dry-run 安装器、hook smoke test 和 Windows-first 工具文档。
 5. Hook runtime 纵切：面向 Codex 和 Claude Code 的公开 SessionStart、UserPromptSubmit、PreToolUse、PermissionRequest、PostToolUse 和 PreCompact hooks。
+6. Installer runtime integration：dry-run / apply 会规划 hook scripts、hook docs，并渲染 host config examples。
 
 剩余 v1 阶段：
 
-1. hook runtime 接入安装器。
-2. Skill 打包和发布准备。
+1. Skill 打包和发布准备。
+2. Fresh-clone release instructions。
 
 完整计划见 [docs/v1-migration-plan.md](docs/v1-migration-plan.md)。
 
