@@ -21,6 +21,8 @@ Claude Code 使用 `settings.json` 注册 hook，公开模板见 `templates/clau
 
 当传入目标根目录时，`tools/install.ps1` 会自动渲染 host-specific examples：Codex 得到已替换目标路径的 `requirements.managed-hooks.example.toml`，Claude Code 得到已替换目标路径的 `settings.hooks.example.json`。
 
+渲染配置文件不等于启用宿主 hooks。完整路径见 [activation-guide.zh-CN.md](activation-guide.zh-CN.md)：Codex 需要写入 active managed manifest，Claude Code 需要合并 settings，然后重启宿主。用 `tools/diagnose-install.ps1 -RequireHooksActive` 检查完整设置。
+
 ## Logs
 
 如果设置了 `STEADYAGENT_LOG_DIR`，hook 日志写入该目录；否则写入用户本地应用数据目录。
@@ -35,3 +37,5 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-runtime
 ```
 
 测试会通过真实 stdin 模拟 hook event JSON，验证可观察行为，而不是只检查内部函数。
+
+这些测试证明脚本能运行，不证明 Codex 或 Claude Code 已经把这些脚本加载为真实 hooks。

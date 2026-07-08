@@ -155,6 +155,25 @@ function Invoke-CheckedCommand {
     }
 }
 
+function Invoke-ExpectedFailureCommand {
+    param(
+        [string]$Label,
+        [scriptblock]$Command,
+        [scriptblock]$Predicate,
+        [string]$Detail
+    )
+
+    try {
+        $output = & $Command
+        $code = $LASTEXITCODE
+        $passed = ($code -ne 0) -and (& $Predicate $output)
+        Add-Check $Label $passed ($(if ($passed) { "OK" } else { $Detail + " ExitCode: " + $code + " Output: " + (($output | Out-String).Trim()) }))
+    }
+    catch {
+        Add-Check $Label $false $_.Exception.Message
+    }
+}
+
 function Get-RepositoryStatusLines {
     Push-Location $Root
     try {
@@ -331,6 +350,12 @@ function Test-SteadyAgentTomlShape {
         ($Text -match "\[hooks\]") -and
         ($Text -match "\[\[hooks[.]PreToolUse\]\]") -and
         ($Text -match "agent-hook-context[.]ps1") -and
+        ($Text -match "agent-hook-prompt-reminder[.]ps1") -and
+        ($Text -match "agent-hook-command-guard[.]ps1") -and
+        ($Text -match "agent-hook-file-guard[.]ps1") -and
+        ($Text -match "agent-hook-permission-guard[.]ps1") -and
+        ($Text -match "agent-hook-posttool-audit[.]ps1") -and
+        ($Text -match "agent-hook-precompact[.]ps1") -and
         (-not ($Text -match "STEADYAGENT_HOME"))
 }
 
@@ -371,10 +396,20 @@ function Test-FreshCopyInstall {
                 $claudeConfig = Join-Path $claudeRoot "settings.hooks.example.json"
                 $codexSkill = Join-Path $codexRoot "skills/steadyagent-workflow/SKILL.md"
                 $claudeSkill = Join-Path $claudeRoot "skills/steadyagent-workflow/SKILL.md"
+                $codexDiagnose = Join-Path $codexRoot "tools/diagnose-install.ps1"
+                $claudeDiagnose = Join-Path $claudeRoot "tools/diagnose-install.ps1"
+                $codexEnabler = Join-Path $codexRoot "tools/enable-codex-hooks.ps1"
+                $codexActivationGuide = Join-Path $codexRoot "docs/activation-guide.md"
+                $claudeFeatureMap = Join-Path $claudeRoot "docs/feature-map.md"
                 if (-not ((Test-Path -LiteralPath $codexConfig) -and
                     (Test-Path -LiteralPath $claudeConfig) -and
                     (Test-Path -LiteralPath $codexSkill) -and
-                    (Test-Path -LiteralPath $claudeSkill))) {
+                    (Test-Path -LiteralPath $claudeSkill) -and
+                    (Test-Path -LiteralPath $codexDiagnose) -and
+                    (Test-Path -LiteralPath $claudeDiagnose) -and
+                    (Test-Path -LiteralPath $codexEnabler) -and
+                    (Test-Path -LiteralPath $codexActivationGuide) -and
+                    (Test-Path -LiteralPath $claudeFeatureMap))) {
                     return $false
                 }
                 $codexText = [System.IO.File]::ReadAllText($codexConfig, [System.Text.Encoding]::UTF8)
@@ -399,6 +434,79 @@ function Test-FreshCopyInstall {
                 param($output)
                 return (($output | Out-String) -match "0 failed")
             } "Installed Claude runtime smoke failed"
+
+            Invoke-CheckedCommand "installed diagnosis passes with active config overrides" {
+                & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $installRoot "codex/tools/diagnose-install.ps1") -HostTarget Both -CodexRoot (Join-Path $installRoot "codex") -ClaudeRoot (Join-Path $installRoot "claude") -CodexManagedConfigPath (Join-Path $installRoot "codex/requirements.managed-hooks.example.toml") -ClaudeSettingsPath (Join-Path $installRoot "claude/settings.hooks.example.json") -RequireHooksActive
+            } {
+                param($output)
+                return (($output | Out-String) -match "RESULT pass=.*fail=0")
+            } "Installed diagnosis did not prove both hosts active"
+
+            $badCodexConfig = Join-Path $installRoot "managed/bad-requirements.toml"
+            $goodCodexConfigText = [System.IO.File]::ReadAllText((Join-Path $installRoot "codex/requirements.managed-hooks.example.toml"), [System.Text.Encoding]::UTF8)
+            $badCodexConfigText = $goodCodexConfigText.Replace("agent-hook-file-guard.ps1", "agent-hook-file-guard.MISSING")
+            $badCodexConfigParent = Split-Path -Parent $badCodexConfig
+            if (-not (Test-Path -LiteralPath $badCodexConfigParent)) {
+                New-Item -ItemType Directory -Path $badCodexConfigParent -Force | Out-Null
+            }
+            [System.IO.File]::WriteAllText($badCodexConfig, $badCodexConfigText, [System.Text.Encoding]::UTF8)
+
+            Invoke-ExpectedFailureCommand "diagnosis fails when active Codex config misses file guard" {
+                & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $installRoot "codex/tools/diagnose-install.ps1") -HostTarget Codex -CodexRoot (Join-Path $installRoot "codex") -CodexManagedConfigPath $badCodexConfig -RequireHooksActive -SkipSmoke
+            } {
+                param($output)
+                $text = ($output | Out-String)
+                return ($text -match "FAIL Codex active managed hooks config registers file guard") -and
+                    ($text -match "RESULT pass=.*fail=[1-9]")
+            } "Diagnosis accepted an incomplete active Codex hook config"
+
+            $managedTemp = Join-Path $installRoot "managed/requirements.toml"
+            Invoke-CheckedCommand "Codex hook enabler dry-run previews target write" {
+                & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $installRoot "codex/tools/enable-codex-hooks.ps1") -ManagedConfigPath $managedTemp
+            } {
+                param($output)
+                $text = ($output | Out-String)
+                return ($text -match "DRY-RUN") -and ($text -match "WOULD create")
+            } "Codex hook enabler dry-run did not preview activation"
+
+            Invoke-CheckedCommand "Codex hook enabler apply writes temp managed config" {
+                & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $installRoot "codex/tools/enable-codex-hooks.ps1") -ManagedConfigPath $managedTemp -Apply
+            } {
+                param($output)
+                if (-not (Test-Path -LiteralPath $managedTemp -PathType Leaf)) {
+                    return $false
+                }
+                $text = [System.IO.File]::ReadAllText($managedTemp, [System.Text.Encoding]::UTF8)
+                return (($output | Out-String) -match "WROTE") -and (Test-SteadyAgentTomlShape -Text $text)
+            } "Codex hook enabler did not write usable temp config"
+
+            $managedConflict = Join-Path $installRoot "managed/conflict-requirements.toml"
+            $conflictBackupRoot = Join-Path $installRoot "managed/conflict-backups"
+            [System.IO.File]::WriteAllText($managedConflict, "[other]`nvalue = true`n", [System.Text.Encoding]::UTF8)
+
+            Invoke-ExpectedFailureCommand "Codex hook enabler refuses different target without ForceReplace" {
+                & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $installRoot "codex/tools/enable-codex-hooks.ps1") -ManagedConfigPath $managedConflict -BackupRoot $conflictBackupRoot -Apply
+            } {
+                param($output)
+                return (($output | Out-String) -match "already exists and differs")
+            } "Codex hook enabler replaced a different target without ForceReplace"
+
+            Invoke-CheckedCommand "Codex hook enabler force-replaces and backs up existing target" {
+                & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $installRoot "codex/tools/enable-codex-hooks.ps1") -ManagedConfigPath $managedConflict -BackupRoot $conflictBackupRoot -Apply -ForceReplace
+            } {
+                param($output)
+                if (-not (Test-Path -LiteralPath $managedConflict -PathType Leaf)) {
+                    return $false
+                }
+                $backupFiles = @()
+                if (Test-Path -LiteralPath $conflictBackupRoot -PathType Container) {
+                    $backupFiles = @(Get-ChildItem -LiteralPath $conflictBackupRoot -File -Filter "*.bak")
+                }
+                $text = [System.IO.File]::ReadAllText($managedConflict, [System.Text.Encoding]::UTF8)
+                return (($output | Out-String) -match "BACKUP") -and
+                    ($backupFiles.Count -gt 0) -and
+                    (Test-SteadyAgentTomlShape -Text $text)
+            } "Codex hook enabler did not backup and force-replace a different target"
 
         }
         finally {
@@ -443,6 +551,10 @@ $requiredFiles = @(
     "docs/getting-started.zh-CN.md",
     "docs/how-it-works.md",
     "docs/how-it-works.zh-CN.md",
+    "docs/feature-map.md",
+    "docs/feature-map.zh-CN.md",
+    "docs/activation-guide.md",
+    "docs/activation-guide.zh-CN.md",
     "docs/workflow-examples.md",
     "docs/workflow-examples.zh-CN.md",
     "docs/resume-case-study.md",
@@ -454,6 +566,8 @@ $requiredFiles = @(
     "skills/steadyagent-workflow/references/mnilax-extensions.md",
     "skills/steadyagent-workflow/references/operating-principles.md",
     "skills/steadyagent-workflow/references/prompt-recipes.md",
+    "tools/diagnose-install.ps1",
+    "tools/enable-codex-hooks.ps1",
     "tools/validate-release-readiness.ps1"
 )
 
@@ -470,6 +584,8 @@ foreach ($file in @(
     "tools/validate-phase3.ps1",
     "tools/validate-runtime-slice.ps1",
     "tools/install.ps1",
+    "tools/diagnose-install.ps1",
+    "tools/enable-codex-hooks.ps1",
     "tools/test-agent-hooks.ps1"
 )) {
     Test-PowerShellSyntax $file
@@ -506,6 +622,10 @@ $gettingStarted = Read-Text "docs/getting-started.md"
 $gettingStartedZh = Read-Text "docs/getting-started.zh-CN.md"
 $howItWorks = Read-Text "docs/how-it-works.md"
 $howItWorksZh = Read-Text "docs/how-it-works.zh-CN.md"
+$featureMap = Read-Text "docs/feature-map.md"
+$featureMapZh = Read-Text "docs/feature-map.zh-CN.md"
+$activationGuide = Read-Text "docs/activation-guide.md"
+$activationGuideZh = Read-Text "docs/activation-guide.zh-CN.md"
 $workflowExamples = Read-Text "docs/workflow-examples.md"
 $workflowExamplesZh = Read-Text "docs/workflow-examples.zh-CN.md"
 $resumeCaseStudy = Read-Text "docs/resume-case-study.md"
@@ -515,6 +635,8 @@ $skill = Read-Text "skills/steadyagent-workflow/SKILL.md"
 $toolsDoc = Read-Text "docs/tools.md"
 $toolsDocZh = Read-Text "docs/tools.zh-CN.md"
 $install = Read-Text "tools/install.ps1"
+$diagnoseInstall = Read-Text "tools/diagnose-install.ps1"
+$enableCodexHooks = Read-Text "tools/enable-codex-hooks.ps1"
 $releaseReadiness = Read-Text "tools/validate-release-readiness.ps1"
 
 Test-Contains "README.md Quick Start uses release-readiness gate" $quickStart ([regex]::Escape("powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-release-readiness.ps1"))
@@ -529,6 +651,10 @@ Test-Contains "README.md links beginner onboarding" $readme "docs/getting-starte
 Test-Contains "README.zh-CN.md links beginner onboarding" $readmeZh "docs/getting-started[.]zh-CN[.]md"
 Test-Contains "README.md links how-it-works" $readme "docs/how-it-works[.]md"
 Test-Contains "README.zh-CN.md links how-it-works" $readmeZh "docs/how-it-works[.]zh-CN[.]md"
+Test-Contains "README.md links feature map" $readme "docs/feature-map[.]md"
+Test-Contains "README.zh-CN.md links feature map" $readmeZh "docs/feature-map[.]zh-CN[.]md"
+Test-Contains "README.md links activation guide" $readme "docs/activation-guide[.]md"
+Test-Contains "README.zh-CN.md links activation guide" $readmeZh "docs/activation-guide[.]zh-CN[.]md"
 Test-Contains "README.md links workflow examples" $readme "docs/workflow-examples[.]md"
 Test-Contains "README.zh-CN.md links workflow examples" $readmeZh "docs/workflow-examples[.]zh-CN[.]md"
 $notPackagedText = "not packaged as " + "an installer yet"
@@ -577,9 +703,13 @@ Test-Contains "getting-started explains Claude Code path" $gettingStarted "Claud
 Test-Contains "getting-started includes dry-run behavior" $gettingStarted "DRY-RUN"
 Test-Contains "getting-started includes Codex apply command" $gettingStarted "install[.]ps1.+-HostTarget Codex.+-Apply"
 Test-Contains "getting-started includes hook smoke test" $gettingStarted "test-agent-hooks[.]ps1"
+Test-Contains "getting-started includes Codex enabler" $gettingStarted "enable-codex-hooks[.]ps1"
+Test-Contains "getting-started includes install diagnosis" $gettingStarted "diagnose-install[.]ps1"
 Test-Contains "getting-started includes first prompt" $gettingStarted "first prompt"
 Test-Contains "Chinese getting-started includes Codex path" $gettingStartedZh "Codex"
 Test-Contains "Chinese getting-started includes apply command" $gettingStartedZh "install[.]ps1.+-HostTarget Codex.+-Apply"
+Test-Contains "Chinese getting-started includes Codex enabler" $gettingStartedZh "enable-codex-hooks[.]ps1"
+Test-Contains "Chinese getting-started includes install diagnosis" $gettingStartedZh "diagnose-install[.]ps1"
 Test-Contains "Chinese getting-started includes Claude Code path" $gettingStartedZh ("Claude Code\s+" + [regex]::Escape($zhPath))
 Test-Contains "Chinese getting-started includes dual host path" $gettingStartedZh ([regex]::Escape($zhDualHostPath))
 Test-Contains "Chinese getting-started includes learn-first path" $gettingStartedZh ([regex]::Escape($zhLearnFirst))
@@ -593,8 +723,20 @@ Test-Contains "how-it-works covers Skills" $howItWorks "Skills"
 Test-Contains "how-it-works covers Tools" $howItWorks "Tools"
 Test-Contains "how-it-works covers Hooks" $howItWorks "Hooks"
 Test-Contains "how-it-works covers Validation" $howItWorks "Validation"
+Test-Contains "how-it-works names feature map" $howItWorks "feature-map"
+Test-Contains "how-it-works names activation guide" $howItWorks "activation-guide"
 Test-Contains "how-it-works explains Codex and Claude Code" $howItWorks "Codex.+Claude Code"
 Test-Contains "Chinese how-it-works explains Codex and Claude Code" $howItWorksZh "Codex.+Claude Code"
+Test-Contains "feature map maps implementation files" $featureMap "Implementation files"
+Test-Contains "feature map maps activation helper" $featureMap "enable-codex-hooks[.]ps1"
+Test-Contains "feature map explains host activation" $featureMap "require host activation"
+Test-Contains "Chinese feature map maps implementation files" $featureMapZh ([regex]::Escape((New-UnicodeString @(0x5b9e, 0x73b0, 0x6587, 0x4ef6))))
+Test-Contains "Chinese feature map maps activation helper" $featureMapZh "enable-codex-hooks[.]ps1"
+Test-Contains "activation guide separates install and activation" $activationGuide "Installation and activation are different"
+Test-Contains "activation guide includes diagnosis" $activationGuide "diagnose-install[.]ps1"
+Test-Contains "activation guide includes functional probes" $activationGuide "Functional Probe"
+Test-Contains "Chinese activation guide includes diagnosis" $activationGuideZh "diagnose-install[.]ps1"
+Test-Contains "Chinese activation guide includes functional probes" $activationGuideZh ([regex]::Escape((New-UnicodeString @(0x89e6, 0x53d1, 0x529f, 0x80fd))))
 Test-Contains "workflow examples cover bug fix" $workflowExamples "Bug Fix"
 Test-Contains "workflow examples cover feature work" $workflowExamples "Feature Work"
 Test-Contains "workflow examples cover code review" $workflowExamples "Code Review"
@@ -612,6 +754,18 @@ Test-Contains "GitHub workflow runs on Windows" $workflow "windows-latest"
 Test-Contains "GitHub workflow runs release gate" $workflow "validate-release-readiness[.]ps1"
 Test-Contains "tools doc lists release gate" $toolsDoc "validate-release-readiness[.]ps1"
 Test-Contains "Chinese tools doc lists release gate" $toolsDocZh "validate-release-readiness[.]ps1"
+Test-Contains "tools doc lists diagnose install" $toolsDoc "diagnose-install[.]ps1"
+Test-Contains "tools doc lists Codex enabler" $toolsDoc "enable-codex-hooks[.]ps1"
+Test-Contains "Chinese tools doc lists diagnose install" $toolsDocZh "diagnose-install[.]ps1"
+Test-Contains "Chinese tools doc lists Codex enabler" $toolsDocZh "enable-codex-hooks[.]ps1"
+Test-Contains "installer copies diagnosis script" $install "diagnose-install[.]ps1"
+Test-Contains "installer copies Codex enabler" $install "enable-codex-hooks[.]ps1"
+Test-Contains "diagnose install can require hooks active" $diagnoseInstall "RequireHooksActive"
+Test-Contains "diagnose install checks Codex managed config" $diagnoseInstall "CodexManagedConfigPath"
+Test-Contains "diagnose install checks Claude settings" $diagnoseInstall "ClaudeSettingsPath"
+Test-Contains "Codex enabler is dry-run by default" $enableCodexHooks "DRY-RUN SteadyAgent Codex hook activation"
+Test-Contains "Codex enabler backs up existing target" $enableCodexHooks "BACKUP"
+Test-Contains "Codex enabler checks admin for ProgramData" $enableCodexHooks "Administrator"
 Test-Contains "release gate supports WIP validation opt-in" $releaseReadiness "AllowDirty"
 Test-Contains "skill is renamed to steadyagent-workflow" $skill "name:\s+steadyagent-workflow"
 Test-NoPattern "skill no longer uses legacy name" $skill ("zsh" + "-agent")
@@ -633,6 +787,10 @@ $releaseSurface = @(
     "docs/getting-started.zh-CN.md",
     "docs/how-it-works.md",
     "docs/how-it-works.zh-CN.md",
+    "docs/feature-map.md",
+    "docs/feature-map.zh-CN.md",
+    "docs/activation-guide.md",
+    "docs/activation-guide.zh-CN.md",
     "docs/workflow-examples.md",
     "docs/workflow-examples.zh-CN.md",
     "docs/hook-runtime.md",

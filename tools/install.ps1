@@ -95,6 +95,7 @@ function Add-HostPlan {
     if ($HostName -eq "Codex") {
         Add-CopyPlan $Plan (Join-Path $Root "templates/codex/AGENTS.md") (Join-Path $RootPath "AGENTS.md")
         Add-RenderPlan $Plan (Join-Path $Root "templates/codex/requirements.managed-hooks.example.toml") (Join-Path $RootPath "requirements.managed-hooks.example.toml") $RootPath
+        Add-CopyPlan $Plan (Join-Path $Root "tools/enable-codex-hooks.ps1") (Join-Path $RootPath "tools/enable-codex-hooks.ps1")
     }
     else {
         Add-CopyPlan $Plan (Join-Path $Root "templates/claude/CLAUDE.md") (Join-Path $RootPath "CLAUDE.md")
@@ -108,6 +109,11 @@ function Add-HostPlan {
         Add-CopyPlan $Plan $hookScript.FullName (Join-Path $RootPath ("tools/hooks/" + $hookScript.Name))
     }
     Add-CopyPlan $Plan (Join-Path $Root "tools/test-agent-hooks.ps1") (Join-Path $RootPath "tools/test-agent-hooks.ps1")
+    Add-CopyPlan $Plan (Join-Path $Root "tools/diagnose-install.ps1") (Join-Path $RootPath "tools/diagnose-install.ps1")
+    Add-CopyPlan $Plan (Join-Path $Root "docs/activation-guide.md") (Join-Path $RootPath "docs/activation-guide.md")
+    Add-CopyPlan $Plan (Join-Path $Root "docs/activation-guide.zh-CN.md") (Join-Path $RootPath "docs/activation-guide.zh-CN.md")
+    Add-CopyPlan $Plan (Join-Path $Root "docs/feature-map.md") (Join-Path $RootPath "docs/feature-map.md")
+    Add-CopyPlan $Plan (Join-Path $Root "docs/feature-map.zh-CN.md") (Join-Path $RootPath "docs/feature-map.zh-CN.md")
     Add-CopyPlan $Plan (Join-Path $Root "docs/hook-runtime.md") (Join-Path $RootPath "docs/hook-runtime.md")
     Add-CopyPlan $Plan (Join-Path $Root "docs/hook-runtime.zh-CN.md") (Join-Path $RootPath "docs/hook-runtime.zh-CN.md")
 }

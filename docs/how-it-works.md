@@ -42,12 +42,16 @@ When you ask an agent to do work with SteadyAgent, the intended path is:
 | `README.md` and `README.zh-CN.md` | Public entry points and positioning. |
 | `docs/getting-started*.md` | Beginner onboarding and first-use commands. |
 | `docs/how-it-works*.md` | Architecture and implementation explanation. |
+| `docs/feature-map*.md` | Maps each feature to implementation files, install paths, triggers, and verification. |
+| `docs/activation-guide*.md` | Explains the difference between installed files and active host hooks. |
 | `docs/workflow-examples*.md` | Real prompt patterns and expected agent behavior. |
 | `rules/` | Detailed workflow rules for routing, verification, review, safety, and context recovery. |
 | `skills/steadyagent-workflow/` | Reusable workflow bundle for agent hosts that support skills. |
 | `templates/codex/` | Codex-specific entry instruction and managed hook config example. |
 | `templates/claude/` | Claude Code-specific entry instruction and settings hook config example. |
 | `tools/install.ps1` | Dry-run-first installer for host targets. |
+| `tools/diagnose-install.ps1` | Checks installed assets, rendered config, active host config, and installed hook smoke tests. |
+| `tools/enable-codex-hooks.ps1` | Safely writes Codex managed hooks after dry-run review and elevated approval. |
 | `tools/validate-release-readiness.ps1` | Full public release gate. |
 | `tools/validate-phase3.ps1` and `tools/validate-runtime-slice.ps1` | Focused gates for public tools and hook runtime. |
 | `tools/test-agent-hooks.ps1` | End-to-end smoke test for hook scripts. |
@@ -67,6 +71,8 @@ Prompts are useful for judgment, but bad for deterministic checks. SteadyAgent u
 
 - `git-preflight.ps1` checks repository state before work.
 - `git-checkpoint.ps1` stages explicit files and creates a checkpoint commit.
+- `diagnose-install.ps1` checks whether the host root and active hook config are complete.
+- `enable-codex-hooks.ps1` writes Codex managed hooks only after dry-run review and backup.
 - `validate-release-readiness.ps1` checks the public release surface and fresh install behavior.
 - `test-agent-hooks.ps1` sends real hook event JSON through stdin.
 
@@ -85,6 +91,8 @@ Codex and Claude Code do not expose identical hook surfaces:
 | Other agents | Manual reuse of rules and tools until a host-specific adapter exists. |
 
 Hooks are not a complete security boundary. They are one layer in a local workflow that still depends on review, validation, and explicit user approval for risky actions.
+
+Installation alone copies hook scripts and renders config examples. Live hook behavior requires host activation and a host restart. Use [activation-guide.md](activation-guide.md) for activation steps and [feature-map.md](feature-map.md) to trace each behavior back to its implementation file.
 
 ## Why Local-First
 

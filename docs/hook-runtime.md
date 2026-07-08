@@ -21,6 +21,8 @@ Both templates use `STEADYAGENT_HOME` as a placeholder. Replace it with the chec
 
 `tools/install.ps1` renders host-specific examples for you when a target root is provided. It writes Codex `requirements.managed-hooks.example.toml` and Claude Code `settings.hooks.example.json` with the selected target root already substituted.
 
+Rendering a config file is not the same as activating host hooks. Use [activation-guide.md](activation-guide.md) to install the active Codex managed manifest or merge Claude Code settings, then restart the host. Use `tools/diagnose-install.ps1 -RequireHooksActive` to check the full setup.
+
 ## Logs
 
 Hook logs go to `STEADYAGENT_LOG_DIR` when that environment variable is set. Otherwise they default to a user-local application data directory.
@@ -35,3 +37,5 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-runtime
 ```
 
 These tests simulate hook event JSON through real stdin and verify observable behavior, not internal functions.
+
+They prove the scripts work. They do not prove Codex or Claude Code has loaded the scripts as live hooks.

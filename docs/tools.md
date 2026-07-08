@@ -7,6 +7,8 @@ If you are installing SteadyAgent for the first time, start with [getting-starte
 ## Commands
 
 - `tools/install.ps1`: dry-run installer for Codex and Claude Code templates, rules, the `steadyagent-workflow` skill, hook runtime scripts, and hook docs. It prints the copy/render plan by default and writes only when `-Apply` is passed.
+- `tools/diagnose-install.ps1`: checks installed host roots, rendered hook configs, active host hook configs, and installed hook smoke tests.
+- `tools/enable-codex-hooks.ps1`: safely installs the rendered Codex managed-hook manifest into the active Codex managed config path. It is dry-run by default and backs up existing config before replacement.
 - `tools/git-preflight.ps1`: checks Git identity, repository root, branch, remotes, status, `.gitignore`, and large untracked files.
 - `tools/git-checkpoint.ps1`: stages explicit files and creates a checkpoint commit. Use `-DryRun` to preview the plan.
 - `tools/test-hooks.ps1`: smoke-tests the public hook script in a temporary repository.
@@ -32,7 +34,41 @@ The installer also copies the packaged skill to `skills/steadyagent-workflow/` u
 
 After applying to a target root, run that target's `tools/test-agent-hooks.ps1` to smoke-test the installed hook runtime before merging the generated hook config into the host.
 
+`test-agent-hooks.ps1` proves the hook scripts work. It does not prove the host has registered those scripts. Use `diagnose-install.ps1 -RequireHooksActive` after activating the host config and restarting the host.
+
 `-Apply` refuses to overwrite existing targets by default. Use `-Overwrite` only after reviewing the dry-run plan and existing files. When `-HostTarget Both` is used with `-TargetRoot`, the installer plans separate `codex/` and `claude/` subdirectories under that root.
+
+## Diagnose Installation
+
+Run after installing assets:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$HOME\.codex\tools\diagnose-install.ps1" -HostTarget Codex
+```
+
+Run after activating hooks and restarting the host:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$HOME\.codex\tools\diagnose-install.ps1" -HostTarget Codex -RequireHooksActive
+```
+
+The script prints `PASS`, `WARN`, and `FAIL` rows. Missing active hook config is a warning by default and a failure with `-RequireHooksActive`.
+
+## Enable Codex Hooks
+
+Preview first:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$HOME\.codex\tools\enable-codex-hooks.ps1"
+```
+
+Apply from an elevated PowerShell session:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$HOME\.codex\tools\enable-codex-hooks.ps1" -Apply
+```
+
+If a different Codex managed config already exists, the script refuses to replace it unless `-ForceReplace` is supplied. Review the target file and backup plan before using that switch.
 
 ## Cross-platform Status
 
@@ -40,4 +76,4 @@ Cross-platform support is not claimed yet. The scripts are written for PowerShel
 
 ## Hook Runtime
 
-The hook runtime is documented separately in [docs/hook-runtime.md](hook-runtime.md). Use `templates/codex/requirements.managed-hooks.example.toml` for Codex managed hooks and `templates/claude/settings.hooks.example.json` for Claude Code settings hooks.
+The hook runtime is documented separately in [docs/hook-runtime.md](hook-runtime.md). Use [activation-guide.md](activation-guide.md) for the full host activation path. Use `templates/codex/requirements.managed-hooks.example.toml` for Codex managed hooks and `templates/claude/settings.hooks.example.json` for Claude Code settings hooks.
