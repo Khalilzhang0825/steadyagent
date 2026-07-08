@@ -1,8 +1,8 @@
 # Release Plan
 
-## v1.0.0 Release Candidate
+## v1.0.0 Release
 
-Goal: publish the first usable SteadyAgent release candidate as a bilingual local-first harness for Codex and Claude Code.
+Goal: publish the first usable SteadyAgent release as a bilingual local-first harness for Codex and Claude Code.
 
 Includes:
 

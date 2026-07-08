@@ -38,7 +38,7 @@ Chinese is kept as a first-class mirror, not a partial appendix:
 
 ## Target Repository Structure
 
-Current v1 release-candidate structure:
+Current v1 release structure:
 
 ```text
 steadyagent/

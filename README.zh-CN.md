@@ -7,7 +7,7 @@ SteadyAgent 是一个 local-first 的 AI coding agent 工作流 harness，面向
 
 [English README](README.md)
 
-> 状态：v1 release candidate。当前 checkout 已包含公开模板、规则、验证门、Windows-first 工具、公开 hook runtime 纵切和 release-readiness 证据链。
+> 状态：v1.0.0。当前 checkout 已包含公开模板、规则、验证门、Windows-first 工具、公开 hook runtime 纵切和 release-readiness 证据链。
 
 ## 为什么需要 SteadyAgent / Why SteadyAgent
 

@@ -2,17 +2,18 @@
 
 本文件用于本地 release-readiness 通过后、公开 push / tag / GitHub release 前的最终执行。
 
-## 当前远端差距
+## 当前远端状态
 
-2026-07-07 只读核对远端状态：
+2026-07-08 只读核对远端状态：
 
-- Remote：当前 `origin` GitHub repository
+- Repository：`Khalilzhang0825/steadyagent`
 - 默认分支：`main`
-- 公开 `main` 仍显示旧中文 workflow README 和 `zsh-agent-workflow` skill。
-- 公开仓库描述仍是旧项目定位。
-- 当前没有 GitHub releases。
+- PR #1 已合并，merge commit 是 `7876e9c`。
+- 公开 `main` 已包含 SteadyAgent v1.0.0 内容和 `steadyagent-workflow` skill。
+- Repository description 和 topics 已更新。
+- `v1.0.0` tag 和 GitHub release 仍待创建。
 
-本地 `codex/steadyagent-v1` 分支包含 SteadyAgent v1 release-candidate 工作。不要直接覆盖远端；推荐通过 branch + PR 保留可审计证据链。
+本地 `codex/finalize-v1-release` 分支包含最终 release 文档收口。不要直接覆盖远端；推荐通过 branch + PR 保留可审计证据链。
 
 ## 必备本地证据
 
@@ -27,7 +28,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\test-agent-hooks
 
 当前期望结果：
 
-- release-readiness：`82/0`
+- release-readiness：`83/0`
 - Phase 3：`89/0`
 - runtime slice：`60/0`
 - hook smoke：`30/0`
@@ -49,13 +50,13 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\test-agent-hooks
 只有得到 maintainer 明确批准后才运行；approval boundary: explicit maintainer approval。
 
 ```powershell
-git push -u origin codex/steadyagent-v1
+git push -u origin <release-branch>
 ```
 
 PR 文案：
 
 ```text
-Title: SteadyAgent v1 release candidate
+Title: SteadyAgent v1.0.0 release
 
 Summary:
 - Replaces the legacy personal workflow with SteadyAgent, a bilingual local-first harness for Codex and Claude Code.
@@ -63,7 +64,7 @@ Summary:
 - Adds release-readiness validation covering clean-vs-WIP mode, fresh workspace snapshot, rendered configs, installed hook smoke tests, and legacy skill cleanup.
 
 Validation:
-- tools/validate-release-readiness.ps1 => 82/0
+- tools/validate-release-readiness.ps1 => 83/0
 - tools/validate-phase3.ps1 => 89/0
 - tools/validate-runtime-slice.ps1 => 60/0
 - tools/test-agent-hooks.ps1 => 30/0
@@ -117,7 +118,7 @@ Included:
 - MIT license, contribution guide, security policy, issue templates, PR template, and CI workflow
 
 Validation:
-- release-readiness: 82/0
+- release-readiness: 83/0
 - Phase 3: 89/0
 - runtime slice: 60/0
 - hook smoke: 30/0

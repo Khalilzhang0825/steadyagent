@@ -1,6 +1,6 @@
 # Release Notes
 
-## v1.0.0 Release Candidate
+## v1.0.0
 
 SteadyAgent v1 turns the original personal workflow into a public, bilingual, Windows-first agent harness for Codex and Claude Code.
 
