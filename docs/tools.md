@@ -2,6 +2,8 @@
 
 SteadyAgent ships a Windows-first PowerShell tool slice because the workflow was proven on Windows before being generalized.
 
+If you are installing SteadyAgent for the first time, start with [getting-started.md](getting-started.md). If you want the architecture before the commands, read [how-it-works.md](how-it-works.md).
+
 ## Commands
 
 - `tools/install.ps1`: dry-run installer for Codex and Claude Code templates, rules, the `steadyagent-workflow` skill, hook runtime scripts, and hook docs. It prints the copy/render plan by default and writes only when `-Apply` is passed.

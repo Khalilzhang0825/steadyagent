@@ -2,6 +2,8 @@
 
 SteadyAgent 发布的是一组 Windows-first 的 PowerShell 工具，因为这套 workflow 先在 Windows 上验证，再逐步公开化。
 
+如果你是第一次安装 SteadyAgent，先读 [getting-started.zh-CN.md](getting-started.zh-CN.md)。如果想先理解架构，再读 [how-it-works.zh-CN.md](how-it-works.zh-CN.md)。
+
 ## 命令
 
 - `tools/install.ps1`：Codex 和 Claude Code 模板、rules、`steadyagent-workflow` skill、hook runtime scripts 和 hook docs 的 dry-run 安装器。默认只打印复制 / 渲染计划，只有传入 `-Apply` 才会写入文件。

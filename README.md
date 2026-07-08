@@ -8,6 +8,17 @@ SteadyAgent is a local-first harness for AI coding agents such as Codex and Clau
 
 > Status: v1.0.0 is released. This checkout includes public templates, rules, validation gates, Windows-first tools, the public hook runtime slice, and release-readiness evidence.
 
+## Start Here
+
+If you are new, start with [docs/getting-started.md](docs/getting-started.md). It gives separate paths for a new Codex user, a Claude Code user, both hosts, and read-only evaluation.
+
+If you want to understand the system before installing it, read:
+
+- [docs/how-it-works.md](docs/how-it-works.md) for the architecture and implementation model
+- [docs/workflow-examples.md](docs/workflow-examples.md) for real prompts and expected agent behavior
+- [docs/tools.md](docs/tools.md) for exact commands
+- [docs/hook-runtime.md](docs/hook-runtime.md) for hook lifecycle details
+
 ## Why SteadyAgent
 
 AI coding agents are powerful, but they fail in predictable ways:
@@ -30,6 +41,9 @@ The current branch gives you:
 - public Codex and Claude Code templates in `templates/`
 - progressive workflow, verification, review, context, and safety rules in `rules/`
 - public tools in `tools/`: dry-run installer, Git preflight, checkpoint, hook smoke tests, and guardrail hooks
+- beginner onboarding in [docs/getting-started.md](docs/getting-started.md)
+- implementation explanation in [docs/how-it-works.md](docs/how-it-works.md)
+- practical workflow examples in [docs/workflow-examples.md](docs/workflow-examples.md)
 - Windows-first tool documentation in [docs/tools.md](docs/tools.md)
 - a hook runtime guide in [docs/hook-runtime.md](docs/hook-runtime.md)
 - concise design notes in [docs/design-notes.md](docs/design-notes.md)
@@ -58,10 +72,54 @@ That loop is the core product. Every file in the repo exists to make one step mo
 
 ## Quick Start
 
-Run the release-readiness gate from a clean checkout:
+From a clean checkout, first verify the public package:
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-release-readiness.ps1
+```
+
+Preview the install plan for the host you use:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install.ps1 -HostTarget Codex
+```
+
+or:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install.ps1 -HostTarget Claude
+```
+
+Apply only after reviewing the matching dry-run plan:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install.ps1 -HostTarget Codex -Apply
+```
+
+or:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install.ps1 -HostTarget Claude -Apply
+```
+
+Smoke-test the installed hook runtime for the host you installed:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$HOME\.codex\tools\test-agent-hooks.ps1"
+```
+
+or:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$HOME\.claude\tools\test-agent-hooks.ps1"
+```
+
+The installer is dry-run by default. It copies host instructions, `rules/`, the `steadyagent-workflow` skill, hook scripts, hook docs, and a rendered hook config example. Add `-Apply` only after reviewing the plan. See [docs/getting-started.md](docs/getting-started.md) for the full beginner path.
+
+To evaluate both host layouts without touching your real host directories, run:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install.ps1 -HostTarget Both -TargetRoot .\steadyagent-install-preview
 ```
 
 For smaller scoped checks, run the Phase 3 and hook runtime gates:
@@ -71,13 +129,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-phase3.
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-runtime-slice.ps1
 ```
 
-Preview the installer before writing files:
-
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install.ps1 -HostTarget Both -TargetRoot .\steadyagent-install-preview
-```
-
-The installer is dry-run by default. Add `-Apply` only after reviewing the plan. See [docs/release-checklist.md](docs/release-checklist.md) before publishing a tag or GitHub release.
+See [docs/release-checklist.md](docs/release-checklist.md) before publishing a tag or GitHub release.
 For the GitHub push, PR, metadata, and release sequence, use [docs/github-publication-runbook.md](docs/github-publication-runbook.md).
 
 ## Safety Model

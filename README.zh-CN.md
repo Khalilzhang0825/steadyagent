@@ -9,6 +9,17 @@ SteadyAgent 是一个 local-first 的 AI coding agent 工作流 harness，面向
 
 > 状态：v1.0.0 已发布。当前 checkout 已包含公开模板、规则、验证门、Windows-first 工具、公开 hook runtime 纵切和 release-readiness 证据链。
 
+## 从这里开始 / Start Here
+
+如果你是新用户，先读 [docs/getting-started.zh-CN.md](docs/getting-started.zh-CN.md)。它把 Codex 新手、Claude Code 用户、双宿主用户和只读评估分成了不同路径。
+
+如果你想先理解系统再安装，按这个顺序读：
+
+- [docs/how-it-works.zh-CN.md](docs/how-it-works.zh-CN.md)：架构和实现模型
+- [docs/workflow-examples.zh-CN.md](docs/workflow-examples.zh-CN.md)：真实提示词和预期 agent 行为
+- [docs/tools.zh-CN.md](docs/tools.zh-CN.md)：具体命令
+- [docs/hook-runtime.zh-CN.md](docs/hook-runtime.zh-CN.md)：hook 生命周期细节
+
 ## 为什么需要 SteadyAgent / Why SteadyAgent
 
 AI coding agents 很强，但常见失败模式很稳定：
@@ -31,6 +42,9 @@ SteadyAgent 不替代 Codex 或 Claude Code。它是在这些 agent 外面加一
 - `templates/` 中的 Codex 和 Claude Code 公开模板
 - `rules/` 中的 workflow、verification、review、context 和 safety 渐进规则
 - `tools/` 中的 dry-run 安装器、Git preflight、checkpoint、hook smoke tests 和 guardrail hooks
+- [docs/getting-started.zh-CN.md](docs/getting-started.zh-CN.md) 中的新手上手路径
+- [docs/how-it-works.zh-CN.md](docs/how-it-works.zh-CN.md) 中的实现说明
+- [docs/workflow-examples.zh-CN.md](docs/workflow-examples.zh-CN.md) 中的工作流示例
 - [docs/tools.zh-CN.md](docs/tools.zh-CN.md) 中的 Windows-first 工具说明
 - [docs/hook-runtime.zh-CN.md](docs/hook-runtime.zh-CN.md) 中的 hook runtime 说明
 - [docs/design-notes.md](docs/design-notes.md) 中的 concise design notes
@@ -59,10 +73,54 @@ understand -> plan -> red check -> smallest change -> green check -> review -> c
 
 ## 快速开始 / Quick Start
 
-在干净 checkout 中先运行 release-readiness gate：
+在干净 checkout 中先验证公开包：
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-release-readiness.ps1
+```
+
+写入文件前，先按你使用的宿主预览安装计划：
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install.ps1 -HostTarget Codex
+```
+
+或：
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install.ps1 -HostTarget Claude
+```
+
+检查匹配的 dry-run 输出后，再应用到对应宿主：
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install.ps1 -HostTarget Codex -Apply
+```
+
+或：
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install.ps1 -HostTarget Claude -Apply
+```
+
+对已安装的 hook runtime 做冒烟测试，按你安装的宿主选择：
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$HOME\.codex\tools\test-agent-hooks.ps1"
+```
+
+或：
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$HOME\.claude\tools\test-agent-hooks.ps1"
+```
+
+安装器默认 dry-run。它会复制宿主入口指令、`rules/`、`steadyagent-workflow` skill、hook scripts、hook docs，并渲染一份 hook config example。只有确认计划后才加 `-Apply`。完整新手路径见 [docs/getting-started.zh-CN.md](docs/getting-started.zh-CN.md)。
+
+如果只想隔离评估两个宿主的目录结构，不写入真实宿主目录，可以运行：
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install.ps1 -HostTarget Both -TargetRoot .\steadyagent-install-preview
 ```
 
 如果只做局部检查，可以运行 Phase 3 和 hook runtime gates：
@@ -72,13 +130,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-phase3.
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-runtime-slice.ps1
 ```
 
-写入文件前，先预览安装计划：
-
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install.ps1 -HostTarget Both -TargetRoot .\steadyagent-install-preview
-```
-
-安装器默认 dry-run。只有确认计划后才加 `-Apply`。发布 tag 或 GitHub release 前，先看 [docs/release-checklist.zh-CN.md](docs/release-checklist.zh-CN.md)。
+发布 tag 或 GitHub release 前，先看 [docs/release-checklist.zh-CN.md](docs/release-checklist.zh-CN.md)。
 GitHub push、PR、metadata 和 release 执行顺序见 [docs/github-publication-runbook.zh-CN.md](docs/github-publication-runbook.zh-CN.md)。
 
 ## 安全模型 / Safety Model

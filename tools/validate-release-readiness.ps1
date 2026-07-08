@@ -439,6 +439,12 @@ $requiredFiles = @(
     "docs/release-checklist.zh-CN.md",
     "docs/github-publication-runbook.md",
     "docs/github-publication-runbook.zh-CN.md",
+    "docs/getting-started.md",
+    "docs/getting-started.zh-CN.md",
+    "docs/how-it-works.md",
+    "docs/how-it-works.zh-CN.md",
+    "docs/workflow-examples.md",
+    "docs/workflow-examples.zh-CN.md",
     "docs/resume-case-study.md",
     "docs/resume-case-study.zh-CN.md",
     "skills/steadyagent-workflow/SKILL.md",
@@ -489,6 +495,19 @@ $zhPostPublishLabel = New-UnicodeString @(0x53d1, 0x5e03, 0x540e, 0x68c0, 0x67e5
 $publicationRunbookPostPublishZh = Get-SectionByLabel $publicationRunbookZh $zhPostPublishLabel
 $zhExplicitApproval = New-UnicodeString @(0x660e, 0x786e, 0x6279, 0x51c6)
 $zhVersionNumber = New-UnicodeString @(0x7248, 0x672c, 0x53f7)
+$zhPath = New-UnicodeString @(0x8def, 0x5f84)
+$zhDualHostPath = New-UnicodeString @(0x53cc, 0x5bbf, 0x4e3b, 0x8def, 0x5f84)
+$zhLearnFirst = New-UnicodeString @(0x5148, 0x7406, 0x89e3, 0x9879, 0x76ee)
+$zhFirstPrompt = New-UnicodeString @(0x7b2c, 0x4e00, 0x6761, 0x63d0, 0x793a, 0x8bcd)
+$zhFixBug = New-UnicodeString @(0x4fee)
+$zhLongTaskResume = New-UnicodeString @(0x957f, 0x4efb, 0x52a1, 0x6062, 0x590d)
+$zhReleaseCheck = New-UnicodeString @(0x53d1, 0x5e03, 0x68c0, 0x67e5)
+$gettingStarted = Read-Text "docs/getting-started.md"
+$gettingStartedZh = Read-Text "docs/getting-started.zh-CN.md"
+$howItWorks = Read-Text "docs/how-it-works.md"
+$howItWorksZh = Read-Text "docs/how-it-works.zh-CN.md"
+$workflowExamples = Read-Text "docs/workflow-examples.md"
+$workflowExamplesZh = Read-Text "docs/workflow-examples.zh-CN.md"
 $resumeCaseStudy = Read-Text "docs/resume-case-study.md"
 $resumeCaseStudyZh = Read-Text "docs/resume-case-study.zh-CN.md"
 $workflow = Read-Text ".github/workflows/validate.yml"
@@ -502,6 +521,16 @@ Test-Contains "README.md Quick Start uses release-readiness gate" $quickStart ([
 Test-Contains "README.zh-CN.md Quick Start uses release-readiness gate" $quickStartZh ([regex]::Escape("powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\validate-release-readiness.ps1"))
 Test-Contains "README.md Quick Start includes installer dry-run" $quickStart "install[.]ps1.+-HostTarget Both"
 Test-Contains "README.zh-CN.md Quick Start includes installer dry-run" $quickStartZh "install[.]ps1.+-HostTarget Both"
+Test-Contains "README.md Quick Start includes Codex dry-run" $quickStart "install[.]ps1.+-HostTarget Codex"
+Test-Contains "README.zh-CN.md Quick Start includes Codex dry-run" $quickStartZh "install[.]ps1.+-HostTarget Codex"
+Test-Contains "README.md Quick Start includes Claude dry-run" $quickStart "install[.]ps1.+-HostTarget Claude"
+Test-Contains "README.zh-CN.md Quick Start includes Claude dry-run" $quickStartZh "install[.]ps1.+-HostTarget Claude"
+Test-Contains "README.md links beginner onboarding" $readme "docs/getting-started[.]md"
+Test-Contains "README.zh-CN.md links beginner onboarding" $readmeZh "docs/getting-started[.]zh-CN[.]md"
+Test-Contains "README.md links how-it-works" $readme "docs/how-it-works[.]md"
+Test-Contains "README.zh-CN.md links how-it-works" $readmeZh "docs/how-it-works[.]zh-CN[.]md"
+Test-Contains "README.md links workflow examples" $readme "docs/workflow-examples[.]md"
+Test-Contains "README.zh-CN.md links workflow examples" $readmeZh "docs/workflow-examples[.]zh-CN[.]md"
 $notPackagedText = "not packaged as " + "an installer yet"
 $futureFreshCloneText = "will add " + "fresh-clone instructions"
 $missingReleasePackagePattern = $notPackagedText + "|" + $futureFreshCloneText
@@ -543,6 +572,40 @@ Test-Contains "Chinese publication runbook documents stale branch cleanup" $publ
 Test-Contains "Chinese publication runbook documents release replacement" $publicationRunbookZh "GitHub release"
 Test-Contains "Chinese publication runbook documents fresh clone ref checks" $publicationRunbookZh "git branch -r"
 Test-Contains "Chinese publication runbook documents clean history log checks" $publicationRunbookZh "git log --all"
+Test-Contains "getting-started explains new Codex path" $gettingStarted "New to Codex Path"
+Test-Contains "getting-started explains Claude Code path" $gettingStarted "Claude Code Path"
+Test-Contains "getting-started includes dry-run behavior" $gettingStarted "DRY-RUN"
+Test-Contains "getting-started includes Codex apply command" $gettingStarted "install[.]ps1.+-HostTarget Codex.+-Apply"
+Test-Contains "getting-started includes hook smoke test" $gettingStarted "test-agent-hooks[.]ps1"
+Test-Contains "getting-started includes first prompt" $gettingStarted "first prompt"
+Test-Contains "Chinese getting-started includes Codex path" $gettingStartedZh "Codex"
+Test-Contains "Chinese getting-started includes apply command" $gettingStartedZh "install[.]ps1.+-HostTarget Codex.+-Apply"
+Test-Contains "Chinese getting-started includes Claude Code path" $gettingStartedZh ("Claude Code\s+" + [regex]::Escape($zhPath))
+Test-Contains "Chinese getting-started includes dual host path" $gettingStartedZh ([regex]::Escape($zhDualHostPath))
+Test-Contains "Chinese getting-started includes learn-first path" $gettingStartedZh ([regex]::Escape($zhLearnFirst))
+Test-Contains "Chinese getting-started includes Claude apply command" $gettingStartedZh "install[.]ps1.+-HostTarget Claude.+-Apply"
+Test-Contains "Chinese getting-started includes both-host preview" $gettingStartedZh "install[.]ps1.+-HostTarget Both.+-TargetRoot"
+Test-Contains "Chinese getting-started includes hook smoke test" $gettingStartedZh "test-agent-hooks[.]ps1"
+Test-Contains "Chinese getting-started includes first prompt" $gettingStartedZh ([regex]::Escape($zhFirstPrompt))
+Test-Contains "how-it-works covers Instructions" $howItWorks "Instructions"
+Test-Contains "how-it-works covers Rules" $howItWorks "Rules"
+Test-Contains "how-it-works covers Skills" $howItWorks "Skills"
+Test-Contains "how-it-works covers Tools" $howItWorks "Tools"
+Test-Contains "how-it-works covers Hooks" $howItWorks "Hooks"
+Test-Contains "how-it-works covers Validation" $howItWorks "Validation"
+Test-Contains "how-it-works explains Codex and Claude Code" $howItWorks "Codex.+Claude Code"
+Test-Contains "Chinese how-it-works explains Codex and Claude Code" $howItWorksZh "Codex.+Claude Code"
+Test-Contains "workflow examples cover bug fix" $workflowExamples "Bug Fix"
+Test-Contains "workflow examples cover feature work" $workflowExamples "Feature Work"
+Test-Contains "workflow examples cover code review" $workflowExamples "Code Review"
+Test-Contains "workflow examples cover long task resume" $workflowExamples "Long Task Resume"
+Test-Contains "workflow examples cover release check" $workflowExamples "validate-release-readiness[.]ps1"
+Test-Contains "Chinese workflow examples cover bug fix" $workflowExamplesZh ([regex]::Escape($zhFixBug) + "\s+bug")
+Test-Contains "Chinese workflow examples cover review" $workflowExamplesZh "review"
+Test-Contains "Chinese workflow examples cover feature" $workflowExamplesZh "feature"
+Test-Contains "Chinese workflow examples cover long task resume" $workflowExamplesZh ([regex]::Escape($zhLongTaskResume))
+Test-Contains "Chinese workflow examples cover release check" $workflowExamplesZh ([regex]::Escape($zhReleaseCheck))
+Test-Contains "Chinese workflow examples include release gate command" $workflowExamplesZh "validate-release-readiness[.]ps1"
 Test-Contains "resume case study explains evidence" $resumeCaseStudy "Evidence"
 Test-Contains "Chinese resume case study explains evidence" $resumeCaseStudyZh "release-readiness"
 Test-Contains "GitHub workflow runs on Windows" $workflow "windows-latest"
@@ -566,6 +629,12 @@ $releaseSurface = @(
     "RELEASE_NOTES.md",
     "docs/tools.md",
     "docs/tools.zh-CN.md",
+    "docs/getting-started.md",
+    "docs/getting-started.zh-CN.md",
+    "docs/how-it-works.md",
+    "docs/how-it-works.zh-CN.md",
+    "docs/workflow-examples.md",
+    "docs/workflow-examples.zh-CN.md",
     "docs/hook-runtime.md",
     "docs/hook-runtime.zh-CN.md",
     "docs/release-checklist.md",
