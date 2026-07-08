@@ -1,0 +1,10 @@
+.env
+.env.*
+.agent/
+*.log
+node_modules/
+.venv/
+dist/
+build/
+Thumbs.db
+.DS_Store
