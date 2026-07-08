@@ -2,17 +2,18 @@
 
 Use this runbook after local release-readiness passes and before any public push, tag, or GitHub release.
 
-## Current Remote Gap
+## Current Remote State
 
-Read-only remote audit on 2026-07-07:
+Read-only remote audit on 2026-07-08:
 
-- Remote: current `origin` GitHub repository
+- Repository: `Khalilzhang0825/steadyagent`
 - Default branch: `main`
-- Public `main` still shows the legacy Chinese workflow README and `zsh-agent-workflow` skill.
-- Public repository metadata still describes the legacy project.
-- No GitHub releases are published.
+- PR #1 is merged with merge commit `7876e9c`.
+- Public `main` contains the SteadyAgent v1.0.0 content and `steadyagent-workflow` skill.
+- Repository description and topics are updated.
+- `v1.0.0` tag and GitHub release are still pending.
 
-Local branch `codex/steadyagent-v1` contains the SteadyAgent v1 release-candidate work. Do not overwrite remote state casually; publish through an auditable branch and PR.
+Local branch `codex/finalize-v1-release` contains the final release documentation cleanup. Do not overwrite remote state casually; publish through an auditable branch and PR.
 
 ## Required Local Evidence
 
@@ -27,7 +28,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\test-agent-hooks
 
 Expected current results:
 
-- release-readiness: `82/0`
+- release-readiness: `83/0`
 - Phase 3: `89/0`
 - runtime slice: `60/0`
 - hook smoke: `30/0`
@@ -49,13 +50,13 @@ Recommended path for resume evidence: push the branch, open a PR, let GitHub Act
 Only run after explicit maintainer approval:
 
 ```powershell
-git push -u origin codex/steadyagent-v1
+git push -u origin <release-branch>
 ```
 
 Open a PR:
 
 ```text
-Title: SteadyAgent v1 release candidate
+Title: SteadyAgent v1.0.0 release
 
 Summary:
 - Replaces the legacy personal workflow with SteadyAgent, a bilingual local-first harness for Codex and Claude Code.
@@ -63,7 +64,7 @@ Summary:
 - Adds release-readiness validation covering clean-vs-WIP mode, fresh workspace snapshot, rendered configs, installed hook smoke tests, and legacy skill cleanup.
 
 Validation:
-- tools/validate-release-readiness.ps1 => 82/0
+- tools/validate-release-readiness.ps1 => 83/0
 - tools/validate-phase3.ps1 => 89/0
 - tools/validate-runtime-slice.ps1 => 60/0
 - tools/test-agent-hooks.ps1 => 30/0
@@ -117,7 +118,7 @@ Included:
 - MIT license, contribution guide, security policy, issue templates, PR template, and CI workflow
 
 Validation:
-- release-readiness: 82/0
+- release-readiness: 83/0
 - Phase 3: 89/0
 - runtime slice: 60/0
 - hook smoke: 30/0

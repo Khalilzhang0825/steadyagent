@@ -527,7 +527,7 @@ Test-Contains "README.zh-CN.md License section names MIT" $readmeZh "MIT"
 Test-Contains "LICENSE uses MIT" $license "MIT License"
 Test-Contains "CONTRIBUTING explains validation before PRs" $contributing "validate-release-readiness[.]ps1"
 Test-Contains "SECURITY explains private reporting boundary" $security "security"
-Test-Contains "RELEASE_NOTES contains v1 release candidate" $releaseNotes "v1"
+Test-Contains "RELEASE_NOTES contains exact v1.0.0 release heading" $releaseNotes "(?m)^##\s+v1[.]0[.]0\s*$"
 Test-Contains ".gitignore excludes node_modules" $gitignore "node_modules/"
 Test-Contains ".gitignore excludes .venv" $gitignore "[.]venv/"
 Test-Contains ".gitignore excludes dist" $gitignore "dist/"
@@ -575,6 +575,8 @@ $releaseSurface = @(
     "docs/release-checklist.zh-CN.md",
     "docs/github-publication-runbook.md",
     "docs/github-publication-runbook.zh-CN.md",
+    "docs/release-plan.md",
+    "docs/v1-migration-plan.md",
     "docs/resume-case-study.md",
     "docs/resume-case-study.zh-CN.md",
     "templates/codex/AGENTS.md",
@@ -599,9 +601,13 @@ $backslash = [string][char]92
 $privatePathPattern = "(?i)(?<![A-Za-z])(" + "C:" + [regex]::Escape($backslash + "Users" + $backslash) + "|" + [regex]::Escape($slash + "Users" + $slash) + "|E:" + [regex]::Escape($backslash) + "|D:" + [regex]::Escape($backslash) + ")"
 $secretPattern = "(?i)(" + "api" + "[_-]?key|access" + "[_-]?token|secret" + "[_-]?key|pass" + "word\s*=|BEGIN (RSA|OPENSSH|PRIVATE) KEY)"
 $legacyPattern = "(?i)" + "zsh" + "-agent"
+$upperRc = ([string][char]82) + ([string][char]67)
+$lowerRc = ([string][char]114) + ([string][char]99)
+$preReleasePattern = "(?i)" + "release" + "[- ]" + "candidate|v1[.]0[.]0\s+" + "release" + "\s+" + "candidate|\b" + $lowerRc + "[.]1\b|\b" + $upperRc + "\b"
 
 Test-NoPatternInFiles "release surface has no local absolute private paths" $releaseSurface $privatePathPattern
 Test-NoPatternInFiles "release surface has no obvious secret material" $releaseSurface $secretPattern
+Test-NoPatternInFiles "release surface has no prerelease wording" $releaseSurface $preReleasePattern
 Test-NoPatternInFiles "primary release surface has no legacy product naming" $primaryNamingSurface $legacyPattern
 
 Test-FreshCopyInstall $workspaceFiles

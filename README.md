@@ -6,7 +6,7 @@ SteadyAgent is a local-first harness for AI coding agents such as Codex and Clau
 
 [中文说明](README.zh-CN.md)
 
-> Status: v1 release candidate. This checkout includes public templates, rules, validation gates, Windows-first tools, the public hook runtime slice, and release-readiness evidence.
+> Status: v1.0.0. This checkout includes public templates, rules, validation gates, Windows-first tools, the public hook runtime slice, and release-readiness evidence.
 
 ## Why SteadyAgent
 
